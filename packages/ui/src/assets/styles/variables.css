@@ -1,0 +1,43 @@
+:root {
+  /* Paleta Relaxante Lofi (Tons suaves, sem neon) */
+  --sonata-bg-primary: #121518;
+  --sonata-bg-surface: #1a1e23;
+  --sonata-bg-surface-elevated: #22272e;
+  --sonata-bg-input: #15191e;
+
+  /* Tons de Destaque Calmos (Sálvia Suave & Lavanda Pastel) */
+  --sonata-accent-primary: #7da38a;
+  --sonata-accent-hover: #90b59d;
+  --sonata-accent-muted: rgba(125, 163, 138, 0.15);
+  --sonata-accent-secondary: #8e9aaf;
+
+  /* Tipografia Suave e Confortável */
+  --sonata-text-primary: #e6ebed;
+  --sonata-text-secondary: #9aa5b1;
+  --sonata-text-muted: #626d7a;
+  --sonata-text-inverse: #121518;
+
+  /* Bordas e Divisores */
+  --sonata-border-subtle: #29303a;
+  --sonata-border-hover: #3a4452;
+  --sonata-border-focus: #7da38a;
+
+  /* Feedback Semântico Suave */
+  --sonata-success: #82b29a;
+  --sonata-warning: #e0a96d;
+  --sonata-error: #cc7b7b;
+
+  /* Raio de Curvatura Suave */
+  --sonata-radius-sm: 8px;
+  --sonata-radius-md: 14px;
+  --sonata-radius-lg: 20px;
+  --sonata-radius-full: 9999px;
+
+  /* Sombras Sutis */
+  --sonata-shadow-card: 0 8px 32px rgba(0, 0, 0, 0.28);
+  --sonata-shadow-glow: 0 0 20px rgba(125, 163, 138, 0.12);
+
+  /* Transições Fluidas */
+  --sonata-transition-smooth: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --sonata-font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}

@@ -1,0 +1,53 @@
+@import './variables.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--sonata-bg-primary);
+  color: var(--sonata-text-primary);
+  font-family: var(--sonata-font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: var(--sonata-transition-smooth);
+}
+
+input, textarea {
+  font-family: inherit;
+  color: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+/* Scrollbar sutil e minimalista */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sonata-border-subtle);
+  border-radius: var(--sonata-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sonata-border-hover);
+}

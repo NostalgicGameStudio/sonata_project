@@ -4,8 +4,10 @@
   "private": true,
   "description": "Sonata - Multi-platform YouTube audio converter and timestamp-based slicer",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/desktop",
+    "apps/web",
+    "packages/shared-types",
+    "packages/ui"
   ],
   "scripts": {
     "dev:desktop": "npm run dev --workspace=apps/desktop",
