@@ -1,8 +1,8 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import type { ProcessAudioPayload, CutProgress } from '@sonata/shared-types';
+import type { ProcessAudioPayload, CutProgress, DownloadMode } from '@sonata/shared-types';
 
 const electronAPI = {
-  fetchMetadata: (url: string) => ipcRenderer.invoke('fetch-metadata', url),
+  fetchMetadata: (url: string, mode?: DownloadMode) => ipcRenderer.invoke('fetch-metadata', url, mode),
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
   processAudio: (payload: ProcessAudioPayload) => {
     const cleanPayload = JSON.parse(JSON.stringify(payload));

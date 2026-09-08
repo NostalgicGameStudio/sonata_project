@@ -27,12 +27,12 @@ timestamp_parser = RegexTimestampParser()
 metadata_service = YtDlpMetadataService(parser=timestamp_parser)
 
 
-@api.post("/metadata", response=VideoMetadataResponse, summary="Obter metadados do vídeo e sugestão de faixas")
+@api.post("/metadata", response=VideoMetadataResponse, summary="Obter metadados do vídeo ou playlist")
 async def get_metadata(request, payload: MetadataRequest):
     """
-    Recebe a URL do YouTube e extrai metadados completos e sugestões de faixas extraídas da descrição.
+    Recebe a URL do YouTube e o modo de download, extraindo metadados estruturados de vídeos ou playlists.
     """
-    video_info = await metadata_service.extract_metadata(payload.url)
+    video_info = await metadata_service.extract_metadata(payload.url, mode=payload.mode)
 
     return {
         "id": video_info.id,
@@ -41,6 +41,18 @@ async def get_metadata(request, payload: MetadataRequest):
         "duration_seconds": video_info.duration_seconds,
         "thumbnail_url": video_info.thumbnail_url,
         "raw_description": video_info.raw_description,
+        "is_playlist": video_info.is_playlist,
+        "playlist_entries": [
+            {
+                "id": p.id,
+                "title": p.title,
+                "author": p.author,
+                "duration_seconds": p.duration_seconds,
+                "url": p.url,
+                "thumbnail_url": p.thumbnail_url
+            }
+            for p in video_info.playlist_entries
+        ],
         "suggested_tracks": [
             {
                 "index": t.index,

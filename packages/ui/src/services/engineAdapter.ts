@@ -3,7 +3,8 @@ import type {
   Track,
   ProcessAudioPayload,
   ProcessAudioResult,
-  CutProgress
+  CutProgress,
+  DownloadMode
 } from '@sonata/shared-types';
 
 /**
@@ -11,7 +12,7 @@ import type {
  */
 export interface ICutterEngine {
   readonly isDesktop: boolean;
-  fetchMetadata(url: string): Promise<VideoMetadata>;
+  fetchMetadata(url: string, mode?: DownloadMode): Promise<VideoMetadata>;
   parseTimestamps(text: string, durationSeconds?: number): Promise<Track[]>;
   selectDirectory?(): Promise<string | null>;
   processAudio(
@@ -32,7 +33,7 @@ export class DesktopLocalEngine implements ICutterEngine {
       throw new Error('Ambiente Electron não detectado no DesktopLocalEngine.');
     }
     return electronApi as {
-      fetchMetadata: (url: string) => Promise<VideoMetadata>;
+      fetchMetadata: (url: string, mode?: DownloadMode) => Promise<VideoMetadata>;
       selectDirectory: () => Promise<string | null>;
       parseTimestamps: (text: string, durationSeconds?: number) => Promise<Track[]>;
       processAudio: (payload: ProcessAudioPayload) => Promise<ProcessAudioResult>;
@@ -40,8 +41,8 @@ export class DesktopLocalEngine implements ICutterEngine {
     };
   }
 
-  async fetchMetadata(url: string): Promise<VideoMetadata> {
-    return this.api.fetchMetadata(url);
+  async fetchMetadata(url: string, mode?: DownloadMode): Promise<VideoMetadata> {
+    return this.api.fetchMetadata(url, mode);
   }
 
   async selectDirectory(): Promise<string | null> {
@@ -82,11 +83,11 @@ export class WebApiEngine implements ICutterEngine {
     return null;
   }
 
-  async fetchMetadata(url: string): Promise<VideoMetadata> {
+  async fetchMetadata(url: string, mode?: DownloadMode): Promise<VideoMetadata> {
     const response = await fetch(`${this.baseUrl}/metadata`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
+      body: JSON.stringify({ url, mode })
     });
 
     if (!response.ok) {

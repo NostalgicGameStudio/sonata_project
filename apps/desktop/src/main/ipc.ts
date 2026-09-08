@@ -1,10 +1,10 @@
 import { ipcMain, dialog, type BrowserWindow } from 'electron';
-import type { ProcessAudioPayload } from '@sonata/shared-types';
+import type { ProcessAudioPayload, DownloadMode } from '@sonata/shared-types';
 import { LocalCutterService } from './services/localCutter';
 
 export function registerIpcHandlers(mainWindow: BrowserWindow, cutterService: LocalCutterService): void {
-  ipcMain.handle('fetch-metadata', async (_event, url: string) => {
-    return cutterService.fetchMetadata(url);
+  ipcMain.handle('fetch-metadata', async (_event, url: string, mode?: DownloadMode) => {
+    return cutterService.fetchMetadata(url, mode);
   });
 
   ipcMain.handle('select-directory', async () => {

@@ -14,7 +14,7 @@ class IMetadataExtractor(Protocol):
     """
     Contrato para extração de metadados do YouTube.
     """
-    async def extract_metadata(self, url: str) -> VideoInfo:
+    async def extract_metadata(self, url: str, mode: Optional[str] = "album") -> VideoInfo:
         ...
 
 
