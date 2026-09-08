@@ -13,6 +13,7 @@ export interface ICutterEngine {
   readonly isDesktop: boolean;
   fetchMetadata(url: string): Promise<VideoMetadata>;
   parseTimestamps(text: string, durationSeconds?: number): Promise<Track[]>;
+  selectDirectory?(): Promise<string | null>;
   processAudio(
     payload: ProcessAudioPayload,
     onProgress: (progress: CutProgress) => void
@@ -32,6 +33,7 @@ export class DesktopLocalEngine implements ICutterEngine {
     }
     return electronApi as {
       fetchMetadata: (url: string) => Promise<VideoMetadata>;
+      selectDirectory: () => Promise<string | null>;
       parseTimestamps: (text: string, durationSeconds?: number) => Promise<Track[]>;
       processAudio: (payload: ProcessAudioPayload) => Promise<ProcessAudioResult>;
       onProgress: (callback: (progress: CutProgress) => void) => () => void;
@@ -40,6 +42,10 @@ export class DesktopLocalEngine implements ICutterEngine {
 
   async fetchMetadata(url: string): Promise<VideoMetadata> {
     return this.api.fetchMetadata(url);
+  }
+
+  async selectDirectory(): Promise<string | null> {
+    return this.api.selectDirectory();
   }
 
   async parseTimestamps(text: string, durationSeconds?: number): Promise<Track[]> {
@@ -68,6 +74,11 @@ export class WebApiEngine implements ICutterEngine {
 
   constructor(baseUrl: string = '/api/v1') {
     this.baseUrl = baseUrl;
+  }
+
+  async selectDirectory(): Promise<string | null> {
+    // Na Web, o navegador gerencia o download de arquivos via browser default
+    return null;
   }
 
   async fetchMetadata(url: string): Promise<VideoMetadata> {

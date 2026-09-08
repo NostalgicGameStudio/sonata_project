@@ -50,6 +50,7 @@ export interface ProcessAudioPayload {
   outputFormat: 'mp3' | 'flac' | 'wav' | 'aac';
   bitrate?: string; // ex: "320k", "192k"
   includeMetadataTags?: boolean;
+  destinationDirectory?: string;
 }
 
 /**

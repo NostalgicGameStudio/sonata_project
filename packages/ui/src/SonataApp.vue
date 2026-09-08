@@ -23,6 +23,17 @@ const progress = ref<CutProgress>({
   message: ''
 });
 
+const destinationDirectory = ref('');
+
+const handleSelectDirectory = async () => {
+  if (engine.selectDirectory) {
+    const selected = await engine.selectDirectory();
+    if (selected) {
+      destinationDirectory.value = selected;
+    }
+  }
+};
+
 const handleSearch = async (url: string) => {
   currentUrl.value = url;
   isAnalyzing.value = true;
@@ -80,7 +91,8 @@ const startProcess = async () => {
       {
         videoUrl: currentUrl.value,
         tracks: selectedTracks,
-        outputFormat: outputFormat.value
+        outputFormat: outputFormat.value,
+        destinationDirectory: destinationDirectory.value || undefined
       },
       (p: CutProgress) => {
         progress.value = p;
@@ -147,7 +159,7 @@ const startProcess = async () => {
         />
 
         <!-- Controles de Saída e Execução -->
-        <div class="action-footer">
+        <div class="options-card">
           <div class="format-select-group">
             <label>Formato:</label>
             <select v-model="outputFormat" :disabled="isProcessing">
@@ -157,6 +169,24 @@ const startProcess = async () => {
             </select>
           </div>
 
+          <div v-if="engine.isDesktop" class="directory-select-group">
+            <label>Destino:</label>
+            <div class="directory-picker" :class="{ disabled: isProcessing }" @click="!isProcessing && handleSelectDirectory()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span class="directory-text" :title="destinationDirectory || 'Downloads/Sonata (Padrão)'">
+                {{ destinationDirectory || 'Downloads/Sonata (Padrão)' }}
+              </span>
+              <button type="button" class="change-dir-btn" :disabled="isProcessing">
+                Selecionar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-footer">
+          <div></div>
           <button
             type="button"
             class="start-button"
@@ -289,15 +319,29 @@ const startProcess = async () => {
   color: var(--sonata-text-muted);
 }
 
+.options-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background-color: var(--sonata-bg-surface);
+  border: 1px solid var(--sonata-border-subtle);
+  border-radius: var(--sonata-radius-lg);
+  padding: 16px 20px;
+  margin-top: 16px;
+  box-shadow: var(--sonata-shadow-card);
+}
+
 .action-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 24px;
+  margin-top: 16px;
   gap: 16px;
 }
 
-.format-select-group {
+.format-select-group, .directory-select-group {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -306,17 +350,65 @@ const startProcess = async () => {
 }
 
 .format-select-group select {
-  background-color: var(--sonata-bg-surface);
+  background-color: var(--sonata-bg-input);
   color: var(--sonata-text-primary);
   border: 1px solid var(--sonata-border-subtle);
   padding: 8px 14px;
   border-radius: var(--sonata-radius-md);
   font-family: inherit;
   outline: none;
+  cursor: pointer;
+  transition: var(--sonata-transition-smooth);
 }
 
 .format-select-group select:focus {
   border-color: var(--sonata-border-focus);
+}
+
+.directory-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--sonata-bg-input);
+  border: 1px solid var(--sonata-border-subtle);
+  padding: 6px 12px;
+  border-radius: var(--sonata-radius-md);
+  cursor: pointer;
+  transition: var(--sonata-transition-smooth);
+  max-width: 380px;
+}
+
+.directory-picker:hover:not(.disabled) {
+  border-color: var(--sonata-border-hover);
+  background-color: var(--sonata-bg-surface-elevated);
+}
+
+.directory-picker.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.directory-text {
+  font-size: 0.85rem;
+  color: var(--sonata-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 230px;
+}
+
+.change-dir-btn {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--sonata-radius-sm);
+  background-color: var(--sonata-bg-surface-elevated);
+  color: var(--sonata-accent-primary);
+  border: 1px solid var(--sonata-border-subtle);
+}
+
+.change-dir-btn:hover:not(:disabled) {
+  background-color: var(--sonata-accent-muted);
 }
 
 .start-button {

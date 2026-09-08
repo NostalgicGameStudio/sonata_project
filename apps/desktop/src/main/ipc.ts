@@ -1,10 +1,22 @@
-import { ipcMain, type BrowserWindow } from 'electron';
+import { ipcMain, dialog, type BrowserWindow } from 'electron';
 import type { ProcessAudioPayload } from '@sonata/shared-types';
 import { LocalCutterService } from './services/localCutter';
 
 export function registerIpcHandlers(mainWindow: BrowserWindow, cutterService: LocalCutterService): void {
   ipcMain.handle('fetch-metadata', async (_event, url: string) => {
     return cutterService.fetchMetadata(url);
+  });
+
+  ipcMain.handle('select-directory', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Selecionar pasta de destino para as músicas fatiadas',
+      properties: ['openDirectory', 'createDirectory']
+    });
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return null;
+    }
+    return result.filePaths[0];
   });
 
   ipcMain.handle('process-audio', async (_event, payload: ProcessAudioPayload) => {

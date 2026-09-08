@@ -83,9 +83,11 @@ export class LocalCutterService {
     const selectedTracks = payload.tracks.filter((t) => t.selected);
     const total = selectedTracks.length;
 
-    // Destino final: pasta Downloads do usuário
+    // Destino final: pasta customizada ou pasta Downloads do usuário
     const homeDir = os.homedir();
-    const outputDir = path.join(homeDir, 'Downloads', 'Sonata', `Album_${Date.now()}`);
+    const outputDir = payload.destinationDirectory && payload.destinationDirectory.trim()
+      ? payload.destinationDirectory.trim()
+      : path.join(homeDir, 'Downloads', 'Sonata', `Album_${Date.now()}`);
     fs.mkdirSync(outputDir, { recursive: true });
 
     // 2. Fatiamento de cada faixa via FFmpeg local
