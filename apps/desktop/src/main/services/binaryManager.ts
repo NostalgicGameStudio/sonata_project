@@ -4,17 +4,20 @@ import https from 'https';
 import { app } from 'electron';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
+import ffmpegPath from 'ffmpeg-static';
 
 const execFileAsync = promisify(execFile);
 
 export class BinaryManager {
   private readonly binDir: string;
   private readonly ytdlpPath: string;
+  private readonly ffmpegPath: string;
 
   constructor() {
     this.binDir = path.join(app.getPath('userData'), 'bin');
     const isWindows = process.platform === 'win32';
     this.ytdlpPath = path.join(this.binDir, isWindows ? 'yt-dlp.exe' : 'yt-dlp');
+    this.ffmpegPath = path.join(this.binDir, isWindows ? 'ffmpeg.exe' : 'ffmpeg');
   }
 
   public getYtDlpPath(): string {
@@ -26,6 +29,20 @@ export class BinaryManager {
   }
 
   public getFfmpegPath(): string {
+    // 1. Se existir binário na pasta do usuário (bin)
+    if (fs.existsSync(this.ffmpegPath)) {
+      return this.ffmpegPath;
+    }
+
+    // 2. Se o pacote ffmpeg-static forneceu o executável
+    if (ffmpegPath) {
+      const unpackedPath = ffmpegPath.replace('app.asar', 'app.asar.unpacked');
+      if (fs.existsSync(unpackedPath)) {
+        return unpackedPath;
+      }
+    }
+
+    // 3. Fallback para o PATH do sistema operacional
     return process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
   }
 

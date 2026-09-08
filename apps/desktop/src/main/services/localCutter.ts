@@ -22,6 +22,10 @@ export class LocalCutterService {
       proc.stdout.on('data', (data) => (stdout += data.toString()));
       proc.stderr.on('data', (data) => (stderr += data.toString()));
 
+      proc.on('error', (err) => {
+        reject(new Error(`Falha ao executar yt-dlp: ${err.message}`));
+      });
+
       proc.on('close', (code) => {
         if (code !== 0) {
           reject(new Error(`yt-dlp falhou com código ${code}: ${stderr}`));
@@ -67,16 +71,25 @@ export class LocalCutterService {
 
     // 1. Download do áudio via yt-dlp local
     await new Promise<void>((resolve, reject) => {
-      const proc = spawn(ytdlp, [
+      const ytdlpArgs = [
         '-f', 'ba/b',
         '-o', rawAudioPath,
         '--no-playlist',
+        '--ffmpeg-location', path.dirname(ffmpeg),
         payload.videoUrl
-      ]);
+      ];
+
+      const proc = spawn(ytdlp, ytdlpArgs);
+      let stderr = '';
+
+      proc.stderr.on('data', (d) => (stderr += d.toString()));
+      proc.on('error', (err) => {
+        reject(new Error(`Falha ao executar yt-dlp: ${err.message}`));
+      });
 
       proc.on('close', (code) => {
         if (code === 0) resolve();
-        else reject(new Error(`Falha no download local com código ${code}`));
+        else reject(new Error(`Falha no download local com código ${code}: ${stderr}`));
       });
     });
 
@@ -126,9 +139,15 @@ export class LocalCutterService {
 
       await new Promise<void>((resolve, reject) => {
         const proc = spawn(ffmpeg, args);
+        let ffmpegStderr = '';
+
+        proc.stderr?.on('data', (d) => (ffmpegStderr += d.toString()));
+        proc.on('error', (err) => {
+          reject(new Error(`Falha ao executar FFmpeg: ${err.message}`));
+        });
         proc.on('close', (code) => {
           if (code === 0) resolve();
-          else reject(new Error(`Erro no corte FFmpeg para "${track.title}"`));
+          else reject(new Error(`Erro no corte FFmpeg para "${track.title}" (código ${code}): ${ffmpegStderr}`));
         });
       });
     }
