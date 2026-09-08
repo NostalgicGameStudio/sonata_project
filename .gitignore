@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Python Virtual Environments & Bytecode
+venv/
+.venv/
+*/venv/
+apps/api/venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+
+# Build & Bundles
+dist/
+dist-electron/
+out/
+build/
+*.egg-info/
+.eggs/
+
+# Binaries & Media Temp
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+temp_downloads/
+temp_cuts/
+*.mp3
+*.mp4
+*.m4a
+
+# Logs & Environment
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.env
+.env.local
+.env.*.local
+
+# IDEs & System
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
