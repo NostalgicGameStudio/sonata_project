@@ -169,4 +169,27 @@ const { notifications, dismiss } = useNotifications();
   opacity: 0;
   transform: translateX(30px);
 }
+
+@media (max-width: 480px) {
+  .toast-viewport {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .toast-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .toast-title {
+    font-size: 0.86rem;
+  }
+
+  .toast-message {
+    font-size: 0.8rem;
+  }
+}
 </style>

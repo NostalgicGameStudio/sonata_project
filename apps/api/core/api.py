@@ -1,7 +1,9 @@
 import uuid
 from typing import List
+from django.http import FileResponse, Http404
 from ninja import NinjaAPI
 
+from core.domain.models import Track
 from core.schemas import (
     MetadataRequest,
     VideoMetadataResponse,
@@ -13,6 +15,7 @@ from core.schemas import (
 from core.services import (
     RegexTimestampParser,
     YtDlpMetadataService,
+    AudioProcessorService,
 )
 
 api = NinjaAPI(
@@ -25,6 +28,7 @@ api = NinjaAPI(
 # Injeção das dependências dos serviços (DIP / Clean Architecture)
 timestamp_parser = RegexTimestampParser()
 metadata_service = YtDlpMetadataService(parser=timestamp_parser)
+audio_processor = AudioProcessorService()
 
 
 @api.post("/metadata", response=VideoMetadataResponse, summary="Obter metadados do vídeo ou playlist")
@@ -96,15 +100,54 @@ def parse_text_timestamps(request, payload: ParseTimestampsRequest):
 @api.post("/cut", response=ProcessAudioResponse, summary="Iniciar o processamento e fatiamento de áudio")
 async def cut_audio(request, payload: ProcessAudioRequest):
     """
-    Endpoint assíncrono para agendamento do download e corte das faixas.
+    Endpoint assíncrono para download e corte das faixas com entrega direta para web.
     """
     job_id = str(uuid.uuid4())
 
-    selected_count = sum(1 for t in payload.tracks if t.selected)
+    domain_tracks = [
+        Track(
+            index=t.index,
+            title=t.title,
+            start_time=t.start_time or "00:00",
+            start_seconds=t.start_seconds or 0,
+            end_time=t.end_time,
+            end_seconds=t.end_seconds,
+            artist=t.artist,
+            selected=t.selected,
+            video_url=t.video_url
+        )
+        for t in payload.tracks
+    ]
+
+    processed_count, skipped = await audio_processor.process(
+        job_id=job_id,
+        mode=payload.mode or "album",
+        video_url=payload.video_url,
+        tracks=domain_tracks,
+        output_format=payload.output_format or "mp3",
+        bitrate=payload.bitrate or "320k",
+        album_title=payload.album_title,
+        artist=payload.artist
+    )
 
     return {
         "job_id": job_id,
-        "status": "processing",
-        "tracks_count": selected_count,
-        "message": f"Job {job_id} iniciado com sucesso para {selected_count} faixas."
+        "status": "completed",
+        "tracks_count": len(payload.tracks),
+        "tracks_processed": processed_count,
+        "download_url": f"/api/v1/download/{job_id}",
+        "message": f"{processed_count} faixa(s) processada(s) com sucesso!"
     }
+
+
+@api.get("/download/{job_id}", summary="Download do arquivo de áudio ou arquivo compactado ZIP")
+def download_audio_job(request, job_id: str):
+    """
+    Retorna o arquivo de áudio individual ou o arquivo ZIP com todas as faixas fatiadas/playlist.
+    """
+    job = audio_processor.get_job_file(job_id)
+    if not job:
+        raise Http404("Arquivo de download não encontrado ou já expirado.")
+
+    file_path, filename = job
+    return FileResponse(open(file_path, "rb"), as_attachment=True, filename=filename)

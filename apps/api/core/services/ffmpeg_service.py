@@ -1,7 +1,7 @@
 import asyncio
 import os
 import re
-from typing import List
+from typing import List, Optional
 from core.domain.models import Track
 from core.services.interfaces import IAudioCutter
 
@@ -18,8 +18,12 @@ class FfmpegAudioCutter(IAudioCutter):
     Serviço assíncrono para corte e exportação de faixas com FFmpeg.
     """
 
-    def __init__(self, ffmpeg_binary: str = "ffmpeg"):
-        self.ffmpeg_binary = ffmpeg_binary
+    def __init__(self, ffmpeg_binary: Optional[str] = None):
+        if not ffmpeg_binary:
+            from core.services.audio_processor import get_ffmpeg_path
+            self.ffmpeg_binary = get_ffmpeg_path()
+        else:
+            self.ffmpeg_binary = ffmpeg_binary
 
     async def cut_tracks(
         self,

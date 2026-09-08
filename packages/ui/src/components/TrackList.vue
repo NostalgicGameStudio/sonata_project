@@ -198,149 +198,153 @@ const handleProcessCustomText = () => {
     </div>
 
     <!-- Tabela para Modo ÁLBUM (Com Timestamps) -->
-    <div v-else-if="mode === 'album'" class="tracks-table album-table">
-      <div class="table-head album-grid">
-        <div class="col-check"></div>
-        <div class="col-index">#</div>
-        <div class="col-title">Título da Música</div>
-        <div class="col-time">Início</div>
-        <div class="col-time">Fim</div>
-        <div class="col-actions"></div>
-      </div>
+    <div v-else-if="mode === 'album'" class="table-scroll-container">
+      <div class="tracks-table album-table">
+        <div class="table-head album-grid">
+          <div class="col-check"></div>
+          <div class="col-index">#</div>
+          <div class="col-title">Título da Música</div>
+          <div class="col-time">Início</div>
+          <div class="col-time">Fim</div>
+          <div class="col-actions"></div>
+        </div>
 
-      <div class="table-body">
-        <div
-          v-for="(track, idx) in tracks"
-          :key="track.id || idx"
-          class="track-row album-grid"
-          :class="{ 'is-selected': track.selected }"
-        >
-          <div class="col-check">
-            <label class="checkbox-container">
+        <div class="table-body">
+          <div
+            v-for="(track, idx) in tracks"
+            :key="track.id || idx"
+            class="track-row album-grid"
+            :class="{ 'is-selected': track.selected }"
+          >
+            <div class="col-check">
+              <label class="checkbox-container">
+                <input
+                  type="checkbox"
+                  :checked="track.selected"
+                  :disabled="disabled"
+                  @change="toggleTrack(idx)"
+                />
+                <span class="checkmark"></span>
+              </label>
+            </div>
+
+            <div class="col-index">
+              {{ (idx + 1).toString().padStart(2, '0') }}
+            </div>
+
+            <div class="col-title">
               <input
-                type="checkbox"
-                :checked="track.selected"
+                type="text"
+                :value="track.title"
+                placeholder="Nome da faixa..."
                 :disabled="disabled"
-                @change="toggleTrack(idx)"
+                class="inline-input title-input"
+                @input="e => updateField(idx, 'title', (e.target as HTMLInputElement).value)"
               />
-              <span class="checkmark"></span>
-            </label>
-          </div>
+            </div>
 
-          <div class="col-index">
-            {{ (idx + 1).toString().padStart(2, '0') }}
-          </div>
+            <div class="col-time">
+              <input
+                type="text"
+                :value="track.startTime"
+                placeholder="00:00"
+                :disabled="disabled"
+                class="inline-input time-input"
+                @input="e => updateField(idx, 'startTime', (e.target as HTMLInputElement).value)"
+              />
+            </div>
 
-          <div class="col-title">
-            <input
-              type="text"
-              :value="track.title"
-              placeholder="Nome da faixa..."
-              :disabled="disabled"
-              class="inline-input title-input"
-              @input="e => updateField(idx, 'title', (e.target as HTMLInputElement).value)"
-            />
-          </div>
+            <div class="col-time">
+              <input
+                type="text"
+                :value="track.endTime || ''"
+                placeholder="Final"
+                :disabled="disabled"
+                class="inline-input time-input"
+                @input="e => updateField(idx, 'endTime', (e.target as HTMLInputElement).value)"
+              />
+            </div>
 
-          <div class="col-time">
-            <input
-              type="text"
-              :value="track.startTime"
-              placeholder="00:00"
-              :disabled="disabled"
-              class="inline-input time-input"
-              @input="e => updateField(idx, 'startTime', (e.target as HTMLInputElement).value)"
-            />
-          </div>
-
-          <div class="col-time">
-            <input
-              type="text"
-              :value="track.endTime || ''"
-              placeholder="Final"
-              :disabled="disabled"
-              class="inline-input time-input"
-              @input="e => updateField(idx, 'endTime', (e.target as HTMLInputElement).value)"
-            />
-          </div>
-
-          <div class="col-actions">
-            <button
-              type="button"
-              class="remove-button"
-              title="Remover faixa"
-              :disabled="disabled"
-              @click="emit('remove-track', idx)"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
+            <div class="col-actions">
+              <button
+                type="button"
+                class="remove-button"
+                title="Remover faixa"
+                :disabled="disabled"
+                @click="emit('remove-track', idx)"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Tabela para Modo PLAYLIST ou MÚSICA INDIVIDUAL (Sem cortes de início/fim) -->
-    <div v-else class="tracks-table" :class="mode === 'single' ? 'single-table' : 'playlist-table'">
-      <div class="table-head" :class="mode === 'single' ? 'single-grid' : 'playlist-grid'">
-        <div v-if="mode === 'playlist'" class="col-check"></div>
-        <div class="col-index">#</div>
-        <div class="col-title">Título da Música</div>
-        <div class="col-artist">Artista / Canal</div>
-        <div class="col-duration">Duração</div>
-      </div>
+    <div v-else class="table-scroll-container">
+      <div class="tracks-table" :class="mode === 'single' ? 'single-table' : 'playlist-table'">
+        <div class="table-head" :class="mode === 'single' ? 'single-grid' : 'playlist-grid'">
+          <div v-if="mode === 'playlist'" class="col-check"></div>
+          <div class="col-index">#</div>
+          <div class="col-title">Título da Música</div>
+          <div class="col-artist">Artista / Canal</div>
+          <div class="col-duration">Duração</div>
+        </div>
 
-      <div class="table-body">
-        <div
-          v-for="(track, idx) in tracks"
-          :key="track.id || idx"
-          class="track-row"
-          :class="[mode === 'single' ? 'single-grid' : 'playlist-grid', { 'is-selected': track.selected }]"
-        >
-          <div v-if="mode === 'playlist'" class="col-check">
-            <label class="checkbox-container">
+        <div class="table-body">
+          <div
+            v-for="(track, idx) in tracks"
+            :key="track.id || idx"
+            class="track-row"
+            :class="[mode === 'single' ? 'single-grid' : 'playlist-grid', { 'is-selected': track.selected }]"
+          >
+            <div v-if="mode === 'playlist'" class="col-check">
+              <label class="checkbox-container">
+                <input
+                  type="checkbox"
+                  :checked="track.selected"
+                  :disabled="disabled"
+                  @change="toggleTrack(idx)"
+                />
+                <span class="checkmark"></span>
+              </label>
+            </div>
+
+            <div class="col-index">
+              {{ (idx + 1).toString().padStart(2, '0') }}
+            </div>
+
+            <div class="col-title">
               <input
-                type="checkbox"
-                :checked="track.selected"
+                type="text"
+                :value="track.title"
+                placeholder="Título da música..."
                 :disabled="disabled"
-                @change="toggleTrack(idx)"
+                class="inline-input title-input"
+                @input="e => updateField(idx, 'title', (e.target as HTMLInputElement).value)"
               />
-              <span class="checkmark"></span>
-            </label>
-          </div>
+            </div>
 
-          <div class="col-index">
-            {{ (idx + 1).toString().padStart(2, '0') }}
-          </div>
+            <div class="col-artist">
+              <input
+                type="text"
+                :value="track.artist || ''"
+                placeholder="Artista..."
+                :disabled="disabled"
+                class="inline-input artist-input"
+                @input="e => updateField(idx, 'artist', (e.target as HTMLInputElement).value)"
+              />
+            </div>
 
-          <div class="col-title">
-            <input
-              type="text"
-              :value="track.title"
-              placeholder="Título da música..."
-              :disabled="disabled"
-              class="inline-input title-input"
-              @input="e => updateField(idx, 'title', (e.target as HTMLInputElement).value)"
-            />
-          </div>
-
-          <div class="col-artist">
-            <input
-              type="text"
-              :value="track.artist || ''"
-              placeholder="Artista..."
-              :disabled="disabled"
-              class="inline-input artist-input"
-              @input="e => updateField(idx, 'artist', (e.target as HTMLInputElement).value)"
-            />
-          </div>
-
-          <div class="col-duration">
-            <span class="duration-badge">
-              {{ track.durationSeconds ? secondsToTimestamp(track.durationSeconds) : (track.endTime || '--:--') }}
-            </span>
+            <div class="col-duration">
+              <span class="duration-badge">
+                {{ track.durationSeconds ? secondsToTimestamp(track.durationSeconds) : (track.endTime || '--:--') }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -384,6 +388,7 @@ const handleProcessCustomText = () => {
   background-color: var(--sonata-accent-muted);
   padding: 4px 10px;
   border-radius: var(--sonata-radius-full);
+  white-space: nowrap;
 }
 
 .header-actions {
@@ -403,6 +408,7 @@ const handleProcessCustomText = () => {
   padding: 6px 14px;
   border-radius: var(--sonata-radius-md);
   transition: var(--sonata-transition-smooth);
+  white-space: nowrap;
 }
 
 .secondary-action-button:hover:not(:disabled) {
@@ -427,6 +433,7 @@ const handleProcessCustomText = () => {
   padding: 6px 14px;
   border-radius: var(--sonata-radius-md);
   transition: var(--sonata-transition-smooth);
+  white-space: nowrap;
 }
 
 .add-track-button:hover:not(:disabled) {
@@ -546,6 +553,14 @@ const handleProcessCustomText = () => {
   cursor: not-allowed;
 }
 
+/* Container de rolagem para tabelas */
+.table-scroll-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
 .table-head {
   padding: 12px 8px;
   font-size: 0.78rem;
@@ -639,6 +654,7 @@ const handleProcessCustomText = () => {
   background-color: var(--sonata-bg-input);
   padding: 4px 8px;
   border-radius: var(--sonata-radius-sm);
+  white-space: nowrap;
 }
 
 .remove-button {
@@ -718,6 +734,110 @@ const handleProcessCustomText = () => {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsividade TrackList */
+@media (max-width: 768px) {
+  .album-grid {
+    grid-template-columns: 28px 28px minmax(130px, 1fr) 76px 76px 32px;
+    gap: 8px;
+  }
+
+  .playlist-grid {
+    grid-template-columns: 28px 28px minmax(130px, 1fr) 140px 75px;
+    gap: 8px;
+  }
+
+  .single-grid {
+    grid-template-columns: 28px minmax(140px, 1fr) 150px 75px;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .track-list-card {
+    padding: 16px 12px;
+    border-radius: var(--sonata-radius-md);
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-left {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .secondary-action-button, .add-track-button {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 6px;
+    font-size: 0.8rem;
+  }
+
+  .album-grid {
+    min-width: 440px;
+    grid-template-columns: 24px 24px minmax(120px, 1fr) 68px 68px 28px;
+    gap: 6px;
+  }
+
+  .playlist-grid {
+    min-width: 440px;
+    grid-template-columns: 24px 24px minmax(120px, 1fr) 120px 65px;
+    gap: 6px;
+  }
+
+  .single-grid {
+    min-width: 380px;
+    grid-template-columns: 24px minmax(130px, 1fr) 110px 65px;
+    gap: 6px;
+  }
+
+  .time-input {
+    padding: 4px 2px;
+    font-size: 0.82rem;
+  }
+
+  .artist-input {
+    padding: 4px 6px;
+    font-size: 0.82rem;
+  }
+
+  .title-input {
+    padding: 4px 6px;
+    font-size: 0.88rem;
+  }
+
+  .paste-box-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .btn-cancel, .btn-process {
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+  }
+
+  .empty-actions {
+    width: 100%;
+  }
+
+  .empty-actions .btn-process {
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+  }
 }
 </style>
 

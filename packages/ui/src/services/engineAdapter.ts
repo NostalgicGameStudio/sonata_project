@@ -92,10 +92,27 @@ export class WebApiEngine implements ICutterEngine {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.message || 'Falha ao buscar metadados do vídeo.');
+      throw new Error(err.message || err.detail || 'Falha ao buscar metadados do vídeo.');
     }
 
-    return response.json();
+    const data = await response.json();
+    return {
+      id: data.id,
+      title: data.title,
+      author: data.author,
+      durationSeconds: data.duration_seconds || 0,
+      thumbnailUrl: data.thumbnail_url || '',
+      rawDescription: data.raw_description || '',
+      isPlaylist: data.is_playlist || false,
+      playlistEntries: (data.playlist_entries || []).map((p: any) => ({
+        id: p.id,
+        title: p.title,
+        author: p.author,
+        durationSeconds: p.duration_seconds || 0,
+        url: p.url,
+        thumbnailUrl: p.thumbnail_url
+      }))
+    };
   }
 
   async parseTimestamps(text: string, durationSeconds?: number): Promise<Track[]> {
@@ -106,31 +123,82 @@ export class WebApiEngine implements ICutterEngine {
     });
 
     if (!response.ok) {
-      throw new Error('Falha ao processar marcações de tempo.');
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.message || err.detail || 'Falha ao processar marcações de tempo.');
     }
 
-    return response.json();
+    const data = await response.json();
+    return data.map((t: any) => ({
+      id: `track-${t.index}`,
+      index: t.index,
+      title: t.title,
+      startTime: t.start_time,
+      startSeconds: t.start_seconds,
+      endTime: t.end_time,
+      endSeconds: t.end_seconds,
+      durationSeconds: t.duration_seconds,
+      artist: t.artist,
+      selected: t.selected !== false,
+      videoUrl: t.video_url
+    }));
   }
 
   async processAudio(
     payload: ProcessAudioPayload,
     onProgress: (progress: CutProgress) => void
   ): Promise<ProcessAudioResult> {
-    onProgress({ status: 'downloading', percentage: 15, message: 'Iniciando requisição ao servidor...' });
+    onProgress({ status: 'downloading', percentage: 15, message: 'Iniciando requisição ao servidor web...' });
+
+    const apiPayload = {
+      mode: payload.mode || 'album',
+      video_url: payload.videoUrl,
+      output_format: payload.outputFormat || 'mp3',
+      bitrate: payload.bitrate || '320k',
+      album_title: payload.albumTitle,
+      artist: payload.artist,
+      tracks: payload.tracks.map(t => ({
+        index: t.index,
+        title: t.title,
+        start_time: t.startTime || '00:00',
+        start_seconds: t.startSeconds || 0,
+        end_time: t.endTime || null,
+        end_seconds: t.endSeconds || null,
+        duration_seconds: t.durationSeconds || null,
+        artist: t.artist || null,
+        selected: t.selected !== false,
+        video_url: t.videoUrl || null
+      }))
+    };
 
     const response = await fetch(`${this.baseUrl}/cut`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(apiPayload)
     });
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      throw new Error(err.message || 'Falha ao fatiar o áudio na API.');
+      const msg = typeof err.detail === 'string' ? err.detail : err.message || 'Falha ao processar o áudio na API.';
+      throw new Error(msg);
     }
 
-    onProgress({ status: 'completed', percentage: 100, message: 'Processamento concluído!' });
-    return response.json();
+    const data = await response.json();
+    onProgress({ status: 'completed', percentage: 100, message: 'Processamento concluído com sucesso!' });
+
+    if (data.download_url && typeof window !== 'undefined' && document) {
+      const downloadLink = document.createElement('a');
+      downloadLink.href = data.download_url;
+      downloadLink.setAttribute('download', '');
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+
+    return {
+      jobId: data.job_id,
+      tracksProcessed: data.tracks_processed || data.tracks_count || payload.tracks.filter(t => t.selected).length,
+      downloadUrl: data.download_url
+    };
   }
 }
 

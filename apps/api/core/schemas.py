@@ -61,4 +61,6 @@ class ProcessAudioResponse(Schema):
     status: str
     tracks_count: int
     message: str
+    tracks_processed: Optional[int] = 0
+    download_url: Optional[str] = None
 

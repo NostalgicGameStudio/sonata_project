@@ -97,4 +97,11 @@ defineProps<{
   font-size: 0.85rem;
   color: var(--sonata-text-secondary);
 }
+
+@media (max-width: 640px) {
+  .progress-card {
+    padding: 16px 14px;
+    border-radius: var(--sonata-radius-md);
+  }
+}
 </style>

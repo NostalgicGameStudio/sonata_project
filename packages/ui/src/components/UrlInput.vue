@@ -44,20 +44,22 @@ const handleKeydown = (e: KeyboardEvent) => {
 <template>
   <div class="url-input-container">
     <div class="input-wrapper" :class="{ 'is-loading': loading, 'has-error': !!errorMessage }">
-      <div class="icon-prefix">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <polygon points="10 8 16 12 10 16 10 8"></polygon>
-        </svg>
-      </div>
+      <div class="input-field-group">
+        <div class="icon-prefix">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="10 8 16 12 10 16 10 8"></polygon>
+          </svg>
+        </div>
 
-      <input
-        v-model="inputUrl"
-        type="text"
-        placeholder="Cole o link do YouTube aqui (ex: https://youtu.be/...)"
-        :disabled="loading"
-        @keydown="handleKeydown"
-      />
+        <input
+          v-model="inputUrl"
+          type="text"
+          placeholder="Cole o link do YouTube aqui (ex: https://youtu.be/...)"
+          :disabled="loading"
+          @keydown="handleKeydown"
+        />
+      </div>
 
       <button
         type="button"
@@ -95,6 +97,13 @@ const handleKeydown = (e: KeyboardEvent) => {
   transition: var(--sonata-transition-smooth);
 }
 
+.input-field-group {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
 .input-wrapper:focus-within {
   border-color: var(--sonata-border-focus);
   box-shadow: var(--sonata-shadow-glow);
@@ -109,10 +118,12 @@ const handleKeydown = (e: KeyboardEvent) => {
   align-items: center;
   color: var(--sonata-text-muted);
   margin-right: 12px;
+  flex-shrink: 0;
 }
 
 input {
   flex: 1;
+  min-width: 0;
   font-size: 0.98rem;
   color: var(--sonata-text-primary);
 }
@@ -134,6 +145,7 @@ input::placeholder {
   justify-content: center;
   gap: 8px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .submit-button:hover:not(:disabled) {
@@ -172,5 +184,26 @@ input::placeholder {
   font-size: 0.85rem;
   color: var(--sonata-error);
   padding-left: 12px;
+}
+
+/* Responsividade Mobile e Telas Pequenas */
+@media (max-width: 580px) {
+  .input-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+    gap: 12px;
+    border-radius: var(--sonata-radius-md);
+  }
+
+  .input-field-group {
+    width: 100%;
+  }
+
+  .submit-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.95rem;
+  }
 }
 </style>

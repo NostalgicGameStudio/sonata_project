@@ -235,9 +235,6 @@ const startProcess = async () => {
           </svg>
         </div>
         <h1 class="brand-title">Sonata</h1>
-        <span class="engine-badge" :class="{ 'is-desktop': engine.isDesktop }">
-          {{ engine.isDesktop ? 'Desktop Offline' : 'Web Cloud API' }}
-        </span>
       </div>
       <p class="brand-subtitle">
         Baixe músicas individuais, extraia faixas com precisão de timestamps ou baixe playlists completas.
@@ -401,35 +398,23 @@ const startProcess = async () => {
   color: var(--sonata-accent-primary);
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .brand-title {
-  font-size: 2.2rem;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
   font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--sonata-text-primary);
 }
 
-.engine-badge {
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: var(--sonata-radius-full);
-  background-color: var(--sonata-bg-surface-elevated);
-  color: var(--sonata-text-secondary);
-  border: 1px solid var(--sonata-border-subtle);
-}
-
-.engine-badge.is-desktop {
-  color: var(--sonata-accent-primary);
-  border-color: var(--sonata-accent-muted);
-}
-
 .brand-subtitle {
   color: var(--sonata-text-secondary);
-  font-size: 0.95rem;
+  font-size: clamp(0.85rem, 2.5vw, 0.95rem);
   max-width: 600px;
   margin: 0 auto 20px;
+  padding: 0 8px;
+  line-height: 1.5;
 }
 
 /* Mode Selector Tabs */
@@ -437,6 +422,7 @@ const startProcess = async () => {
   display: flex;
   justify-content: center;
   margin-top: 16px;
+  width: 100%;
 }
 
 .mode-tabs {
@@ -461,6 +447,7 @@ const startProcess = async () => {
   background: transparent;
   border: 1px solid transparent;
   transition: var(--sonata-transition-smooth);
+  white-space: nowrap;
 }
 
 .mode-tab:hover:not(:disabled) {
@@ -660,6 +647,7 @@ const startProcess = async () => {
   background-color: var(--sonata-bg-surface-elevated);
   color: var(--sonata-accent-primary);
   border: 1px solid var(--sonata-border-subtle);
+  flex-shrink: 0;
 }
 
 .change-dir-btn:hover:not(:disabled) {
@@ -677,6 +665,7 @@ const startProcess = async () => {
   padding: 12px 28px;
   border-radius: var(--sonata-radius-md);
   box-shadow: var(--sonata-shadow-card);
+  transition: var(--sonata-transition-smooth);
 }
 
 .start-button:hover:not(:disabled) {
@@ -687,6 +676,119 @@ const startProcess = async () => {
 .start-button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+/* Responsividade Geral */
+@media (max-width: 768px) {
+  .sonata-app-container {
+    padding: 24px 16px 60px;
+  }
+}
+
+@media (max-width: 640px) {
+  .sonata-app-container {
+    padding: 20px 12px 48px;
+  }
+
+  .mode-tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-radius: var(--sonata-radius-md);
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .mode-tab {
+    padding: 7px 4px;
+    justify-content: center;
+    font-size: 0.78rem;
+    gap: 4px;
+    border-radius: var(--sonata-radius-sm);
+  }
+
+  .mode-icon {
+    font-size: 0.88rem;
+  }
+
+  .video-preview-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .thumbnail-wrapper {
+    width: 100%;
+    height: 160px;
+  }
+
+  .video-title {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .options-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .format-select-group, .directory-select-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .format-select-group select {
+    width: 100%;
+  }
+
+  .directory-picker {
+    width: 100%;
+    max-width: 100%;
+    justify-content: space-between;
+  }
+
+  .directory-text {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .action-footer {
+    flex-direction: column;
+    align-items: stretch;
+    margin-top: 14px;
+  }
+
+  .start-button {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .brand-row {
+    gap: 8px;
+  }
+
+  .mode-tab {
+    flex-direction: column;
+    padding: 6px 2px;
+    font-size: 0.72rem;
+    gap: 2px;
+  }
 }
 </style>
 
