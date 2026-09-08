@@ -58,7 +58,8 @@ export class DesktopLocalEngine implements ICutterEngine {
   ): Promise<ProcessAudioResult> {
     const unsubscribe = this.api.onProgress(onProgress);
     try {
-      return await this.api.processAudio(payload);
+      const cleanPayload: ProcessAudioPayload = JSON.parse(JSON.stringify(payload));
+      return await this.api.processAudio(cleanPayload);
     } finally {
       unsubscribe();
     }

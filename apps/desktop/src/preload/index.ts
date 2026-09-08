@@ -4,7 +4,10 @@ import type { ProcessAudioPayload, CutProgress } from '@sonata/shared-types';
 const electronAPI = {
   fetchMetadata: (url: string) => ipcRenderer.invoke('fetch-metadata', url),
   selectDirectory: () => ipcRenderer.invoke('select-directory'),
-  processAudio: (payload: ProcessAudioPayload) => ipcRenderer.invoke('process-audio', payload),
+  processAudio: (payload: ProcessAudioPayload) => {
+    const cleanPayload = JSON.parse(JSON.stringify(payload));
+    return ipcRenderer.invoke('process-audio', cleanPayload);
+  },
   onProgress: (callback: (progress: CutProgress) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, progress: CutProgress) => callback(progress);
     ipcRenderer.on('cutter-progress', handler);

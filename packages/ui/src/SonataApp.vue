@@ -73,7 +73,18 @@ const handleRemoveTrack = (index: number) => {
 const startProcess = async () => {
   if (!currentUrl.value || tracks.value.length === 0) return;
 
-  const selectedTracks = tracks.value.filter(t => t.selected);
+  const selectedTracks = tracks.value
+    .filter(t => t.selected)
+    .map(t => ({
+      id: t.id,
+      index: t.index,
+      title: t.title,
+      startTime: t.startTime,
+      startSeconds: t.startSeconds,
+      endTime: t.endTime,
+      endSeconds: t.endSeconds,
+      selected: t.selected
+    }));
   if (selectedTracks.length === 0) {
     alert('Selecione ao menos uma faixa para fatiar.');
     return;
