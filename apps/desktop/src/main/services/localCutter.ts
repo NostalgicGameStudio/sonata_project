@@ -19,10 +19,106 @@ function sanitizeName(name: string): string {
 export class LocalCutterService {
   constructor(private readonly binaryManager: BinaryManager) {}
 
+  private getPythonPath(): string {
+    const isWindows = process.platform === 'win32';
+    const venvPython = path.resolve(process.cwd(), 'apps', 'api', 'venv', isWindows ? 'Scripts/python.exe' : 'bin/python');
+    if (fs.existsSync(venvPython)) return venvPython;
+
+    let curr = __dirname;
+    for (let i = 0; i < 6; i++) {
+      const p = path.join(curr, 'apps', 'api', 'venv', isWindows ? 'Scripts/python.exe' : 'bin/python');
+      if (fs.existsSync(p)) return p;
+      const parent = path.dirname(curr);
+      if (parent === curr) break;
+      curr = parent;
+    }
+    return isWindows ? 'python.exe' : 'python3';
+  }
+
+  private getSpotifyCliPath(): string {
+    const cliPath = path.resolve(process.cwd(), 'apps', 'api', 'core', 'spotify_cli.py');
+    if (fs.existsSync(cliPath)) return cliPath;
+
+    let curr = __dirname;
+    for (let i = 0; i < 6; i++) {
+      const p = path.join(curr, 'apps', 'api', 'core', 'spotify_cli.py');
+      if (fs.existsSync(p)) return p;
+      const parent = path.dirname(curr);
+      if (parent === curr) break;
+      curr = parent;
+    }
+    return cliPath;
+  }
+
+  private async fetchSpotifyMetadata(url: string): Promise<VideoMetadata> {
+    const python = this.getPythonPath();
+    const script = this.getSpotifyCliPath();
+
+    return new Promise((resolve, reject) => {
+      const proc = spawn(python, [script, url], {
+        env: {
+          ...process.env,
+          PYTHONIOENCODING: 'utf-8',
+          PYTHONUTF8: '1'
+        }
+      });
+      let stdout = '';
+      let stderr = '';
+
+      proc.stdout.setEncoding('utf-8');
+      proc.stderr.setEncoding('utf-8');
+      proc.stdout.on('data', (d) => (stdout += d.toString()));
+      proc.stderr.on('data', (d) => (stderr += d.toString()));
+
+      proc.on('error', (err) => {
+        reject(new Error(`Falha ao executar extrator do Spotify: ${err.message}`));
+      });
+
+      proc.on('close', (code) => {
+        if (stdout.trim()) {
+          try {
+            const data = JSON.parse(stdout);
+            if (data.error) {
+              reject(new Error(data.error));
+              return;
+            }
+            resolve({
+              id: data.id,
+              title: data.title,
+              author: data.author,
+              durationSeconds: data.durationSeconds || data.duration_seconds || 0,
+              thumbnailUrl: data.thumbnailUrl || data.thumbnail_url || '',
+              rawDescription: '',
+              isPlaylist: data.isPlaylist || data.is_playlist || false,
+              playlistEntries: (data.playlistEntries || data.playlist_entries || []).map((p: any) => ({
+                id: p.id,
+                title: p.title,
+                author: p.author,
+                durationSeconds: p.durationSeconds || p.duration_seconds || 0,
+                url: p.url,
+                thumbnailUrl: p.thumbnailUrl || p.thumbnail_url || ''
+              }))
+            });
+            return;
+          } catch (e) {
+            reject(new Error(`Erro ao interpretar dados do Spotify: ${e}`));
+            return;
+          }
+        }
+        reject(new Error(`Falha ao obter dados do Spotify (código ${code}): ${stderr}`));
+      });
+    });
+  }
+
   /**
    * Extração local de metadados para vídeos individuais ou playlists
    */
   public async fetchMetadata(url: string, mode?: DownloadMode): Promise<VideoMetadata> {
+    const cleanUrl = url.trim().toLowerCase();
+    if (cleanUrl.includes('spotify.com') || cleanUrl.includes('spotify.link') || cleanUrl.startsWith('spotify:')) {
+      return this.fetchSpotifyMetadata(url);
+    }
+
     const ytdlp = this.binaryManager.getYtDlpPath();
     const isPlaylistMode = mode === 'playlist' || url.includes('/playlist') || url.includes('list=');
 
@@ -151,7 +247,22 @@ export class LocalCutterService {
       message: 'Baixando áudio...'
     });
 
-    await this.downloadRawAudio(ytdlp, ffmpeg, payload.videoUrl, rawAudioPath);
+    const track = payload.tracks[0] || {
+      id: '1',
+      index: 1,
+      title: payload.albumTitle || 'Música',
+      artist: payload.artist || '',
+      selected: true
+    };
+
+    let downloadUrl = payload.videoUrl;
+    if (downloadUrl.includes('spotify.com') || !downloadUrl.startsWith('http')) {
+      const searchArtist = track.artist || payload.artist || '';
+      const query = `${searchArtist ? searchArtist + ' - ' : ''}${track.title}`.trim();
+      downloadUrl = `ytsearch1:${query}`;
+    }
+
+    await this.downloadRawAudio(ytdlp, ffmpeg, downloadUrl, rawAudioPath);
 
     onProgress({
       status: 'tagging',
@@ -163,14 +274,6 @@ export class LocalCutterService {
       ? payload.destinationDirectory.trim()
       : path.join(os.homedir(), 'Downloads', 'Sonata');
     fs.mkdirSync(baseDir, { recursive: true });
-
-    const track = payload.tracks[0] || {
-      id: '1',
-      index: 1,
-      title: payload.albumTitle || 'Música',
-      artist: payload.artist || '',
-      selected: true
-    };
 
     const safeTitle = sanitizeName(track.title) || 'Musica';
     const safeArtist = track.artist ? sanitizeName(track.artist) : '';
@@ -319,7 +422,18 @@ export class LocalCutterService {
 
     for (let i = 0; i < total; i++) {
       const track = selectedTracks[i];
-      const targetUrl = track.videoUrl || (track.id ? `https://www.youtube.com/watch?v=${track.id}` : payload.videoUrl);
+      let targetUrl = track.videoUrl;
+      if (!targetUrl) {
+        if (track.id && !track.id.startsWith('spotify-')) {
+          targetUrl = `https://www.youtube.com/watch?v=${track.id}`;
+        } else {
+          targetUrl = payload.videoUrl;
+        }
+      }
+      if (targetUrl.includes('spotify.com')) {
+        const query = `${track.artist ? track.artist + ' - ' : ''}${track.title}`.trim();
+        targetUrl = `ytsearch1:${query}`;
+      }
 
       const percent = Math.floor(((i + 1) / total) * 100);
       onProgress({

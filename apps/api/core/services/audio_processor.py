@@ -124,8 +124,13 @@ class AudioProcessorService:
                     "noplaylist": True,
                 }
 
+                download_target = video_url
+                if "spotify.com" in video_url or not video_url.startswith("http"):
+                    search_term = f"{track.artist or artist or ''} - {track.title}".strip(" -")
+                    download_target = f"ytsearch1:{search_term}"
+
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    ydl.download([video_url])
+                    ydl.download([download_target])
 
                 actual_source = None
                 for f in os.listdir(work_dir):
@@ -160,7 +165,16 @@ class AudioProcessorService:
                 downloaded_count = 0
 
                 for t in selected_tracks:
-                    url_to_download = t.video_url or (f"https://www.youtube.com/watch?v={t.id}" if hasattr(t, 'id') and t.id else video_url)
+                    raw_id = getattr(t, 'id', None)
+                    if raw_id and not raw_id.startswith('spotify-'):
+                        fallback_url = f"https://www.youtube.com/watch?v={raw_id}"
+                    else:
+                        fallback_url = video_url
+
+                    url_to_download = t.video_url or fallback_url
+                    if "spotify.com" in url_to_download:
+                        search_term = f"{t.artist or ''} - {t.title}".strip(" -")
+                        url_to_download = f"ytsearch1:{search_term}"
                     safe_title = sanitize_filename(t.title) or f"Faixa_{t.index:02d}"
                     safe_artist = sanitize_filename(t.artist or "")
                     file_prefix = (

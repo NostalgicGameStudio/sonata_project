@@ -63,6 +63,11 @@ const applyTracksForMode = (meta: VideoMetadata, mode: DownloadMode) => {
       videoUrl: entry.url
     }));
   } else if (mode === 'single') {
+    const isSpotifyUrl = currentUrl.value.includes('spotify.com');
+    const searchUrl = isSpotifyUrl
+      ? `ytsearch1:${meta.author ? meta.author + ' - ' : ''}${meta.title}`
+      : undefined;
+
     tracks.value = [
       {
         id: meta.id || `single-track-${Date.now()}`,
@@ -74,7 +79,8 @@ const applyTracksForMode = (meta: VideoMetadata, mode: DownloadMode) => {
         startTime: '00:00',
         startSeconds: 0,
         endTime: secondsToTimestamp(meta.durationSeconds),
-        endSeconds: meta.durationSeconds
+        endSeconds: meta.durationSeconds,
+        videoUrl: searchUrl
       }
     ];
   } else {
@@ -98,8 +104,16 @@ const handleSearch = async (url: string) => {
   videoData.value = null;
   tracks.value = [];
 
-  const isPlaylistUrl = url.includes('/playlist') || url.includes('list=');
-  if (isPlaylistUrl && selectedMode.value !== 'single') {
+  const isSpotify = url.includes('spotify.com');
+  const isPlaylistUrl = url.includes('/playlist') || url.includes('/album/') || url.includes('list=');
+
+  if (isSpotify) {
+    if (url.includes('/track/')) {
+      selectedMode.value = 'single';
+    } else {
+      selectedMode.value = 'playlist';
+    }
+  } else if (isPlaylistUrl && selectedMode.value !== 'single') {
     selectedMode.value = 'playlist';
   }
 
@@ -115,8 +129,12 @@ const handleSearch = async (url: string) => {
 
     if (metadata.isPlaylist) {
       toast.success(`${metadata.playlistEntries?.length || 0} faixas encontradas na playlist.`, 'Playlist pronta');
+    } else if (isSpotify) {
+      toast.success(`Música "${metadata.title}" carregada com sucesso!`, 'Música do Spotify');
     } else if (selectedMode.value === 'album' && tracks.value.length > 0) {
       toast.success(`${tracks.value.length} faixas identificadas na descrição.`, 'Álbum carregado');
+    } else if (selectedMode.value === 'single') {
+      toast.success(`Música "${metadata.title}" carregada com sucesso!`, 'Música pronta');
     }
   } catch (err: any) {
     toast.error(err.message || 'Não foi possível carregar as informações do link.', 'Erro ao carregar link');

@@ -3,6 +3,7 @@ from .timestamp_parser import RegexTimestampParser
 from .ytdlp_service import YtDlpMetadataService
 from .ffmpeg_service import FfmpegAudioCutter
 from .audio_processor import AudioProcessorService
+from .spotify_service import SpotifyMetadataService
 
 __all__ = [
     "ITimestampParser",
@@ -10,6 +11,7 @@ __all__ = [
     "IAudioCutter",
     "RegexTimestampParser",
     "YtDlpMetadataService",
+    "SpotifyMetadataService",
     "FfmpegAudioCutter",
     "AudioProcessorService",
 ]

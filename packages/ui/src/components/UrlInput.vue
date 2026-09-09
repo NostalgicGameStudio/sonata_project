@@ -12,8 +12,8 @@ const emit = defineEmits<{
 const inputUrl = ref('');
 const errorMessage = ref('');
 
-const isValidYoutubeUrl = (url: string) => {
-  const pattern = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+const isValidUrl = (url: string) => {
+  const pattern = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)*(youtube\.com|youtu\.be|spotify\.com|spotify\.link)\/.+$/i;
   return pattern.test(url.trim());
 };
 
@@ -22,12 +22,12 @@ const handleSearch = () => {
   const trimmed = inputUrl.value.trim();
 
   if (!trimmed) {
-    errorMessage.value = 'Informe o link de um vídeo ou playlist do YouTube.';
+    errorMessage.value = 'Informe o link de um vídeo ou playlist do YouTube, ou música/playlist do Spotify.';
     return;
   }
 
-  if (!isValidYoutubeUrl(trimmed)) {
-    errorMessage.value = 'Informe um link válido do YouTube.';
+  if (!isValidUrl(trimmed)) {
+    errorMessage.value = 'Informe um link válido do YouTube ou Spotify.';
     return;
   }
 
@@ -55,7 +55,7 @@ const handleKeydown = (e: KeyboardEvent) => {
         <input
           v-model="inputUrl"
           type="text"
-          placeholder="Cole o link do YouTube aqui..."
+          placeholder="Cole o link do YouTube ou Spotify aqui..."
           :disabled="loading"
           @keydown="handleKeydown"
         />

@@ -15,27 +15,32 @@ from core.schemas import (
 from core.services import (
     RegexTimestampParser,
     YtDlpMetadataService,
+    SpotifyMetadataService,
     AudioProcessorService,
 )
 
 api = NinjaAPI(
     title="Sonata API",
     version="1.0.0",
-    description="API assíncrona para extração de metadados, parsing de timestamps e corte de faixas musicais do YouTube.",
+    description="API assíncrona para extração de metadados, parsing de timestamps e corte de faixas musicais do YouTube e Spotify.",
     docs_url="/docs"
 )
 
 timestamp_parser = RegexTimestampParser()
 metadata_service = YtDlpMetadataService(parser=timestamp_parser)
+spotify_service = SpotifyMetadataService()
 audio_processor = AudioProcessorService()
 
 
 @api.post("/metadata", response=VideoMetadataResponse, summary="Obter metadados do vídeo ou playlist")
 async def get_metadata(request, payload: MetadataRequest):
     """
-    Recebe a URL do YouTube e o modo de download, extraindo metadados estruturados de vídeos ou playlists.
+    Recebe a URL do YouTube ou Spotify e o modo de download, extraindo metadados estruturados.
     """
-    video_info = await metadata_service.extract_metadata(payload.url, mode=payload.mode)
+    if "spotify.com" in payload.url:
+        video_info = await spotify_service.extract_metadata(payload.url, mode=payload.mode)
+    else:
+        video_info = await metadata_service.extract_metadata(payload.url, mode=payload.mode)
 
     return {
         "id": video_info.id,
