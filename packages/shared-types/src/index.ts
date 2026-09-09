@@ -30,20 +30,20 @@ export interface VideoMetadata {
 }
 
 /**
- * Representação de uma faixa musical (fatiada ou item de playlist / música única)
+ * Representação de uma faixa musical
  */
 export interface Track {
   id: string;
   index: number;
   title: string;
   artist?: string;
-  startTime?: string;      // Formato "MM:SS" ou "HH:MM:SS" (Álbum)
+  startTime?: string;
   startSeconds?: number;
-  endTime?: string;       // Formato "MM:SS" ou "HH:MM:SS" (Álbum)
+  endTime?: string;
   endSeconds?: number;
-  durationSeconds?: number; // Usado em Playlist e Música Única
-  selected: boolean;      // Para permitir ao usuário marcar/desmarcar faixas para download
-  videoUrl?: string;      // Usado para download individual em playlists
+  durationSeconds?: number;
+  selected: boolean;
+  videoUrl?: string;
 }
 
 /**
@@ -70,7 +70,7 @@ export interface ProcessAudioPayload {
   videoUrl: string;
   tracks: Track[];
   outputFormat: 'mp3' | 'flac' | 'wav' | 'aac';
-  bitrate?: string; // ex: "320k", "192k"
+  bitrate?: string;
   includeMetadataTags?: boolean;
   destinationDirectory?: string;
   albumTitle?: string;
@@ -82,10 +82,8 @@ export interface ProcessAudioPayload {
  */
 export interface ProcessAudioResult {
   jobId: string;
-  downloadUrl?: string; // Para Web
-  outputDirectory?: string; // Para Desktop Local
+  downloadUrl?: string;
+  outputDirectory?: string;
   tracksProcessed: number;
   skippedTracks?: Array<{ title: string; reason: string }>;
 }
-
-

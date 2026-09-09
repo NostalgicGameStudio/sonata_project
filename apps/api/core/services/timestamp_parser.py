@@ -36,13 +36,9 @@ def seconds_to_timestamp(seconds: int) -> str:
 
 class RegexTimestampParser(ITimestampParser):
     """
-    Parser robusto baseado em Expressões Regulares com Named Groups.
-    Atende ao Princípio de Responsabilidade Única (SRP).
+    Parser baseado em Expressões Regulares com Named Groups.
     """
 
-    # Suporta:
-    # 1. Início da linha: [04:02] Música ou 04:02 - Música
-    # 2. Fim da linha: Música - 04:02 ou Música [04:02]
     TIMESTAMP_PATTERN = re.compile(
         r"^(?:(?:\[|\()?(?P<time1>(?:\d{1,2}:)?\d{2}:\d{2})(?:\]|\))?[\s\-–—:]+(?P<title1>.+)|(?P<title2>.+?)[\s\-–—:]+(?:\[|\()?(?P<time2>(?:\d{1,2}:)?\d{2}:\d{2})(?:\]|\))?)$"
     )
@@ -62,22 +58,18 @@ class RegexTimestampParser(ITimestampParser):
                 groups = match.groupdict()
                 time_str = groups.get("time1") or groups.get("time2")
                 title = groups.get("title1") or groups.get("title2") or ""
-
-                # Remove numerações iniciais comuns tipo "1. ", "02 - "
                 clean_title = re.sub(r"^\d+[\.\-\)]\s*", "", title).strip()
 
                 if time_str and clean_title:
                     seconds = timestamp_to_seconds(time_str)
                     raw_items.append((seconds, time_str, clean_title))
 
-        # Ordenar cronologicamente
         raw_items.sort(key=lambda item: item[0])
 
         tracks: List[Track] = []
         total_items = len(raw_items)
 
         for idx, (secs, time_str, title) in enumerate(raw_items):
-            # Calcular o fim da faixa baseado no início da próxima
             end_seconds: Optional[int] = None
             if idx + 1 < total_items:
                 end_seconds = raw_items[idx + 1][0]

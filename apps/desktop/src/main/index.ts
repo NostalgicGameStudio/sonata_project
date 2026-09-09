@@ -37,7 +37,6 @@ function createWindow(): void {
 
   registerIpcHandlers(mainWindow, cutterService);
 
-  // Carregar página web ou local dev server
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
   } else {
@@ -52,7 +51,6 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window);
   });
 
-  // Atualização silenciosa em background de binários
   binaryManager.checkForUpdatesSilently();
 
   createWindow();

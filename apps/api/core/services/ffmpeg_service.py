@@ -45,7 +45,7 @@ class FfmpegAudioCutter(IAudioCutter):
 
             cmd = [
                 self.ffmpeg_binary,
-                "-y",                       # Sobrescrever saída se existir
+                "-y",
                 "-ss", str(track.start_seconds),
                 "-i", audio_source_path,
             ]

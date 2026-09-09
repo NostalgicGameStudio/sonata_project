@@ -33,7 +33,6 @@ input, textarea {
   background: none;
 }
 
-/* Scrollbar sutil e minimalista */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

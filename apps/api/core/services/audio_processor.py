@@ -16,12 +16,10 @@ def get_ffmpeg_path() -> str:
     """
     Localiza o executável do ffmpeg no PATH, no workspace ou em node_modules.
     """
-    # 1. PATH do sistema
     found = shutil.which("ffmpeg")
     if found:
         return found
 
-    # 2. Varredura recursiva nos diretórios pais procurando node_modules/ffmpeg-static
     curr = Path(__file__).resolve().parent
     for _ in range(6):
         possible_paths = [
@@ -40,8 +38,7 @@ def get_ffmpeg_path() -> str:
 
 class AudioProcessorService:
     """
-    Serviço completo para download e fatiamento de áudio via API Web.
-    Suporta músicas individuais, álbuns fatiados com FFmpeg e playlists completas compactadas em .ZIP.
+    Serviço para download e fatiamento de áudio via API Web.
     """
 
     def __init__(self, ffmpeg_path: Optional[str] = None):
@@ -49,6 +46,9 @@ class AudioProcessorService:
         self.job_files: Dict[str, Tuple[str, str, str]] = {}
 
     def get_job_file(self, job_id: str) -> Optional[Tuple[str, str]]:
+        """
+        Recupera o caminho do arquivo gerado para o download.
+        """
         if job_id in self.job_files:
             file_path, filename, _ = self.job_files[job_id]
             if os.path.exists(file_path):
@@ -66,6 +66,9 @@ class AudioProcessorService:
         album_title: Optional[str] = None,
         artist: Optional[str] = None,
     ) -> Tuple[int, List[Dict[str, str]]]:
+        """
+        Processa as faixas de áudio assincronamente em threadpool.
+        """
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
             None,
@@ -133,7 +136,6 @@ class AudioProcessorService:
                 if not actual_source or not os.path.exists(actual_source):
                     raise RuntimeError("Não foi possível baixar o áudio do vídeo.")
 
-                # Conversão e aplicação de tags
                 cmd = [self.ffmpeg_path, "-y", "-i", actual_source]
                 if output_format == "mp3":
                     cmd.extend([
@@ -183,7 +185,6 @@ class AudioProcessorService:
                         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                             ydl.download([url_to_download])
 
-                        # Encontra o arquivo temporário
                         raw_temp = None
                         for f in os.listdir(tracks_dir):
                             if f.startswith(f"temp_{t.index}."):
@@ -227,7 +228,6 @@ class AudioProcessorService:
                 return downloaded_count, skipped_tracks
 
             else:
-                # mode == "album" (Fatiamento por timestamps)
                 raw_source_template = os.path.join(work_dir, "full_source.%(ext)s")
                 ydl_opts = {
                     "format": "bestaudio/best",

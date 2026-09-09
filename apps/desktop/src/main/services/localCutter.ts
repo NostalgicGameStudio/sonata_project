@@ -7,7 +7,6 @@ import type {
   ProcessAudioPayload,
   ProcessAudioResult,
   CutProgress,
-  Track,
   DownloadMode,
   PlaylistEntry
 } from '@sonata/shared-types';
@@ -44,12 +43,10 @@ export class LocalCutterService {
       });
 
       proc.on('close', (code) => {
-        // Tenta fazer o parse de stdout primeiro (mesmo se code !== 0, yt-dlp emite JSON válido com avisos de vídeos indisponíveis no stderr)
         if (stdout.trim()) {
           try {
             const info = JSON.parse(stdout);
 
-            // Trata estrutura de Playlist
             if (info._type === 'playlist' || Array.isArray(info.entries)) {
               const rawEntries = Array.isArray(info.entries) ? info.entries : [];
               const playlistEntries: PlaylistEntry[] = rawEntries
@@ -96,7 +93,6 @@ export class LocalCutterService {
               return;
             }
 
-            // Trata estrutura de Vídeo Individual
             resolve({
               id: info.id || '',
               title: info.title || 'Áudio Sem Título',
@@ -108,7 +104,6 @@ export class LocalCutterService {
             });
             return;
           } catch (e) {
-            // Se falhou o parse de JSON, cai no fallback de código de erro abaixo
           }
         }
 
@@ -122,10 +117,7 @@ export class LocalCutterService {
   }
 
   /**
-   * Pipeline de processamento 100% local suportando:
-   * 1. Música Individual (Vídeo completo sem fatiamento)
-   * 2. Álbum / Compilação (Download + Fatiamento FFmpeg)
-   * 3. Playlist (Download em lote de cada vídeo da lista)
+   * Pipeline de processamento de áudio local
    */
   public async processAudio(
     payload: ProcessAudioPayload,
@@ -142,9 +134,6 @@ export class LocalCutterService {
     }
   }
 
-  /**
-   * Modo 1: Download de música individual sem fatiamento
-   */
   private async processSingleTrack(
     payload: ProcessAudioPayload,
     onProgress: (progress: CutProgress) => void
@@ -162,7 +151,6 @@ export class LocalCutterService {
       message: 'Baixando áudio em alta definição...'
     });
 
-    // 1. Download do áudio via yt-dlp
     await this.downloadRawAudio(ytdlp, ffmpeg, payload.videoUrl, rawAudioPath);
 
     onProgress({
@@ -171,7 +159,6 @@ export class LocalCutterService {
       message: 'Convertendo e aplicando tags de áudio...'
     });
 
-    // 2. Destino e conversão
     const baseDir = payload.destinationDirectory && payload.destinationDirectory.trim()
       ? payload.destinationDirectory.trim()
       : path.join(os.homedir(), 'Downloads', 'Sonata');
@@ -207,7 +194,6 @@ export class LocalCutterService {
 
     await this.runFfmpeg(ffmpeg, ffmpegArgs, track.title);
 
-    // Limpeza
     fs.rmSync(workDir, { recursive: true, force: true });
 
     onProgress({
@@ -223,9 +209,6 @@ export class LocalCutterService {
     };
   }
 
-  /**
-   * Modo 2: Fatiamento de álbum/compilação por marcações de tempo
-   */
   private async processAlbumSlicing(
     payload: ProcessAudioPayload,
     onProgress: (progress: CutProgress) => void
@@ -243,13 +226,11 @@ export class LocalCutterService {
       message: 'Baixando áudio completo do álbum...'
     });
 
-    // 1. Download do áudio base
     await this.downloadRawAudio(ytdlp, ffmpeg, payload.videoUrl, rawAudioPath);
 
     const selectedTracks = payload.tracks.filter((t) => t.selected);
     const total = selectedTracks.length;
 
-    // Destino: pasta do álbum
     const homeDir = os.homedir();
     const folderName = payload.albumTitle ? sanitizeName(payload.albumTitle) : `Album_${Date.now()}`;
     const outputDir = payload.destinationDirectory && payload.destinationDirectory.trim()
@@ -257,7 +238,6 @@ export class LocalCutterService {
       : path.join(homeDir, 'Downloads', 'Sonata', folderName);
     fs.mkdirSync(outputDir, { recursive: true });
 
-    // 2. Fatiamento de cada faixa via FFmpeg
     for (let i = 0; i < total; i++) {
       const track = selectedTracks[i];
       const safeTitle = sanitizeName(track.title) || `Faixa_${track.index}`;
@@ -304,7 +284,6 @@ export class LocalCutterService {
       await this.runFfmpeg(ffmpeg, args, track.title);
     }
 
-    // Limpeza
     fs.rmSync(workDir, { recursive: true, force: true });
 
     onProgress({
@@ -320,9 +299,6 @@ export class LocalCutterService {
     };
   }
 
-  /**
-   * Modo 3: Download em lote de Playlist do YouTube
-   */
   private async processPlaylist(
     payload: ProcessAudioPayload,
     onProgress: (progress: CutProgress) => void
@@ -334,7 +310,6 @@ export class LocalCutterService {
     const total = selectedTracks.length;
     const skippedTracks: Array<{ title: string; reason: string }> = [];
 
-    // Destino: pasta da playlist
     const homeDir = os.homedir();
     const folderName = payload.albumTitle ? sanitizeName(payload.albumTitle) : `Playlist_${Date.now()}`;
     const outputDir = payload.destinationDirectory && payload.destinationDirectory.trim()
@@ -418,9 +393,6 @@ export class LocalCutterService {
     };
   }
 
-  /**
-   * Helper para download do stream bruto com yt-dlp
-   */
   private async downloadRawAudio(ytdlp: string, ffmpeg: string, url: string, outputPath: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const ytdlpArgs = [
@@ -446,9 +418,6 @@ export class LocalCutterService {
     });
   }
 
-  /**
-   * Helper para execução segura do FFmpeg
-   */
   private async runFfmpeg(ffmpeg: string, args: string[], trackName: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       const proc = spawn(ffmpeg, args);
@@ -465,4 +434,3 @@ export class LocalCutterService {
     });
   }
 }
-

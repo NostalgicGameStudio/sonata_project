@@ -21,7 +21,6 @@ export class BinaryManager {
   }
 
   public getYtDlpPath(): string {
-    // Se existir binário atualizado na pasta do usuário, use-o; senão busca no PATH do sistema
     if (fs.existsSync(this.ytdlpPath)) {
       return this.ytdlpPath;
     }
@@ -29,12 +28,10 @@ export class BinaryManager {
   }
 
   public getFfmpegPath(): string {
-    // 1. Se existir binário na pasta do usuário (bin)
     if (fs.existsSync(this.ffmpegPath)) {
       return this.ffmpegPath;
     }
 
-    // 2. Se o pacote ffmpeg-static forneceu o executável
     if (ffmpegPath) {
       const unpackedPath = ffmpegPath.replace('app.asar', 'app.asar.unpacked');
       if (fs.existsSync(unpackedPath)) {
@@ -42,7 +39,6 @@ export class BinaryManager {
       }
     }
 
-    // 3. Fallback para o PATH do sistema operacional
     return process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
   }
 
@@ -73,7 +69,6 @@ export class BinaryManager {
         }
       }
     } catch {
-      // Falha silenciosa: modo offline continua funcionando com o binário existente
     }
   }
 
@@ -132,7 +127,6 @@ export class BinaryManager {
 
       const request = (targetUrl: string) => {
         https.get(targetUrl, { headers: { 'User-Agent': 'Sonata-Desktop-App' } }, (res) => {
-          // Tratar redirects comuns da CDN do GitHub
           if (res.statusCode && res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
             request(res.headers.location);
             return;

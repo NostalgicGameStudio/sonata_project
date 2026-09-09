@@ -1,4 +1,4 @@
-import { ref, type InjectionKey, provide, inject } from 'vue';
+import { type InjectionKey, provide, inject } from 'vue';
 import type { ICutterEngine } from '../services/engineAdapter';
 import { createCutterEngine } from '../services/engineAdapter';
 
@@ -19,7 +19,6 @@ export function provideCutterEngine(customEngine?: ICutterEngine) {
 export function useCutterEngine(): ICutterEngine {
   const engine = inject(CutterEngineKey);
   if (!engine) {
-    // Fallback gracioso para criação automática caso não haja provider explícito
     return createCutterEngine();
   }
   return engine;

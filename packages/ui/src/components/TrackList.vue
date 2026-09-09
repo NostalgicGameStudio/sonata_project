@@ -128,7 +128,6 @@ const handleProcessCustomText = () => {
       </div>
     </div>
 
-    <!-- Gaveta para Colar Timestamps de Comentários / Descrição -->
     <div v-if="showPasteBox && mode === 'album'" class="paste-timestamps-box">
       <div class="paste-box-header">
         <div class="paste-box-title-group">
@@ -163,7 +162,6 @@ const handleProcessCustomText = () => {
       </div>
     </div>
 
-    <!-- Empty State -->
     <div v-if="tracks.length === 0" class="empty-state">
       <template v-if="mode === 'album'">
         <div class="empty-album-state">
@@ -197,7 +195,6 @@ const handleProcessCustomText = () => {
       <p v-else>Nenhuma informação da música carregada.</p>
     </div>
 
-    <!-- Tabela para Modo ÁLBUM (Com Timestamps) -->
     <div v-else-if="mode === 'album'" class="table-scroll-container">
       <div class="tracks-table album-table">
         <div class="table-head album-grid">
@@ -284,7 +281,6 @@ const handleProcessCustomText = () => {
       </div>
     </div>
 
-    <!-- Tabela para Modo PLAYLIST ou MÚSICA INDIVIDUAL (Sem cortes de início/fim) -->
     <div v-else class="table-scroll-container">
       <div class="tracks-table" :class="mode === 'single' ? 'single-table' : 'playlist-table'">
         <div class="table-head" :class="mode === 'single' ? 'single-grid' : 'playlist-grid'">
@@ -442,7 +438,6 @@ const handleProcessCustomText = () => {
   background-color: var(--sonata-bg-surface-elevated);
 }
 
-/* Caixa expansível para colar timestamps */
 .paste-timestamps-box {
   background: var(--sonata-bg-input);
   border: 1px solid var(--sonata-border-subtle);
@@ -553,7 +548,6 @@ const handleProcessCustomText = () => {
   cursor: not-allowed;
 }
 
-/* Container de rolagem para tabelas */
 .table-scroll-container {
   width: 100%;
   overflow-x: auto;
@@ -672,7 +666,6 @@ const handleProcessCustomText = () => {
   background-color: rgba(204, 123, 123, 0.1);
 }
 
-/* Custom Checkbox */
 .checkbox-container {
   display: flex;
   align-items: center;
@@ -736,7 +729,6 @@ const handleProcessCustomText = () => {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsividade TrackList */
 @media (max-width: 768px) {
   .album-grid {
     grid-template-columns: 28px 28px minmax(130px, 1fr) 76px 76px 32px;
@@ -840,5 +832,3 @@ const handleProcessCustomText = () => {
   }
 }
 </style>
-
-

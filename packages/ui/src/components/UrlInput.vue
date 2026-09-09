@@ -186,7 +186,6 @@ input::placeholder {
   padding-left: 12px;
 }
 
-/* Responsividade Mobile e Telas Pequenas */
 @media (max-width: 580px) {
   .input-wrapper {
     flex-direction: column;

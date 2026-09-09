@@ -10,14 +10,15 @@ from core.services.timestamp_parser import RegexTimestampParser
 class YtDlpMetadataService(IMetadataExtractor):
     """
     Serviço desacoplado para extração assíncrona de metadados via yt-dlp.
-    Aplica Inversão de Dependência ao receber o parser de timestamps no construtor.
     """
 
     def __init__(self, parser: Optional[ITimestampParser] = None):
         self._parser = parser or RegexTimestampParser()
 
     async def extract_metadata(self, url: str, mode: Optional[str] = "album") -> VideoInfo:
-        # Executa em threadpool assíncrono para evitar bloquear o event loop do asyncio
+        """
+        Extrai metadados estruturados de um vídeo ou playlist.
+        """
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(None, self._extract_sync, url, mode)
 
@@ -38,7 +39,6 @@ class YtDlpMetadataService(IMetadataExtractor):
             if not info:
                 raise ValueError("Não foi possível obter metadados para a URL fornecida.")
 
-            # Se for playlist
             if info.get("_type") == "playlist" or "entries" in info:
                 from core.domain.models import PlaylistEntry
                 entries = info.get("entries") or []
@@ -75,7 +75,6 @@ class YtDlpMetadataService(IMetadataExtractor):
                     suggested_tracks=[]
                 )
 
-            # Se for vídeo individual
             duration = int(info.get("duration") or 0)
             description = info.get("description") or ""
 
@@ -92,4 +91,3 @@ class YtDlpMetadataService(IMetadataExtractor):
                 playlist_entries=[],
                 suggested_tracks=suggested
             )
-

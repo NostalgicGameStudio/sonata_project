@@ -8,7 +8,7 @@ import type {
 } from '@sonata/shared-types';
 
 /**
- * Interface de abstração da Engine de processamento (Princípio da Segregação de Interfaces e Inversão de Dependência)
+ * Interface de abstração da Engine de processamento
  */
 export interface ICutterEngine {
   readonly isDesktop: boolean;
@@ -22,7 +22,7 @@ export interface ICutterEngine {
 }
 
 /**
- * Implementação Desktop: 100% Local e Offline via IPC do Electron
+ * Implementação Desktop: Local via IPC do Electron
  */
 export class DesktopLocalEngine implements ICutterEngine {
   readonly isDesktop = true;
@@ -68,7 +68,7 @@ export class DesktopLocalEngine implements ICutterEngine {
 }
 
 /**
- * Implementação Web: Consome a API assíncrona do Django Ninja
+ * Implementação Web: Consome a API REST assíncrona
  */
 export class WebApiEngine implements ICutterEngine {
   readonly isDesktop = false;
@@ -79,7 +79,6 @@ export class WebApiEngine implements ICutterEngine {
   }
 
   async selectDirectory(): Promise<string | null> {
-    // Na Web, o navegador gerencia o download de arquivos via browser default
     return null;
   }
 

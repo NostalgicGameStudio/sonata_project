@@ -75,7 +75,6 @@ const applyTracksForMode = (meta: VideoMetadata, mode: DownloadMode) => {
       }
     ];
   } else {
-    // Modo album (fatiamento por timestamps)
     const extracted = parseTimestampsFromText(meta.rawDescription, meta.durationSeconds);
     tracks.value = extracted;
   }
@@ -96,7 +95,6 @@ const handleSearch = async (url: string) => {
   videoData.value = null;
   tracks.value = [];
 
-  // Detecção inteligente de playlist se houver parâmetro na URL
   const isPlaylistUrl = url.includes('/playlist') || url.includes('list=');
   if (isPlaylistUrl && selectedMode.value !== 'single') {
     selectedMode.value = 'playlist';
@@ -240,7 +238,6 @@ const startProcess = async () => {
         Baixe músicas individuais, extraia faixas com precisão de timestamps ou baixe playlists completas.
       </p>
 
-      <!-- Seletor de Modos (Pills) -->
       <div class="mode-selector-container">
         <div class="mode-tabs">
           <button
@@ -282,7 +279,6 @@ const startProcess = async () => {
     <main class="app-content">
       <UrlInput :loading="isAnalyzing" @search="handleSearch" />
 
-      <!-- Card do Vídeo / Playlist Carregado -->
       <section v-if="videoData" class="video-preview-card">
         <div class="thumbnail-wrapper">
           <img v-if="videoData.thumbnailUrl" :src="videoData.thumbnailUrl" :alt="videoData.title" />
@@ -311,7 +307,6 @@ const startProcess = async () => {
         </div>
       </section>
 
-      <!-- Lista de Faixas Adaptada ao Modo -->
       <section v-if="videoData">
         <TrackList
           :tracks="tracks"
@@ -323,7 +318,6 @@ const startProcess = async () => {
           @remove-track="handleRemoveTrack"
         />
 
-        <!-- Controles de Saída e Execução -->
         <div class="options-card">
           <div class="format-select-group">
             <label>Formato:</label>
@@ -369,7 +363,6 @@ const startProcess = async () => {
       </section>
     </main>
 
-    <!-- Toast Notifications Viewport -->
     <ToastContainer />
   </div>
 </template>
@@ -417,7 +410,6 @@ const startProcess = async () => {
   line-height: 1.5;
 }
 
-/* Mode Selector Tabs */
 .mode-selector-container {
   display: flex;
   justify-content: center;
@@ -678,7 +670,6 @@ const startProcess = async () => {
   cursor: not-allowed;
 }
 
-/* Responsividade Geral */
 @media (max-width: 768px) {
   .sonata-app-container {
     padding: 24px 16px 60px;
@@ -791,4 +782,3 @@ const startProcess = async () => {
   }
 }
 </style>
-

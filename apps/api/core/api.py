@@ -25,7 +25,6 @@ api = NinjaAPI(
     docs_url="/docs"
 )
 
-# Injeção das dependências dos serviços (DIP / Clean Architecture)
 timestamp_parser = RegexTimestampParser()
 metadata_service = YtDlpMetadataService(parser=timestamp_parser)
 audio_processor = AudioProcessorService()

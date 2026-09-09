@@ -33,14 +33,11 @@ export function secondsToTimestamp(totalSeconds: number): string {
   return `${pad(m)}:${pad(s)}`;
 }
 
-/**
- * Regex inteligente para capturar variações comuns de timestamps e títulos de faixas
- */
 const TIMESTAMP_LINE_REGEX =
   /^(?:(?:\[|\()?(?<time1>(?:\d{1,2}:)?\d{2}:\d{2})(?:\]|\))?[\s\-–—:]+(?<title1>.+)|(?<title2>.+?)[\s\-–—:]+(?:\[|\()?(?<time2>(?:\d{1,2}:)?\d{2}:\d{2})(?:\]|\))?)$/;
 
 /**
- * Parser de texto (descrição ou comentários) para extrair faixas ordenadas
+ * Parser de texto para extrair faixas ordenadas
  */
 export function parseTimestampsFromText(text: string, totalDurationSeconds?: number): Track[] {
   if (!text) return [];
@@ -56,8 +53,6 @@ export function parseTimestampsFromText(text: string, totalDurationSeconds?: num
     if (match && match.groups) {
       const timeStr = match.groups.time1 || match.groups.time2;
       let title = (match.groups.title1 || match.groups.title2 || '').trim();
-
-      // Limpeza de prefixos numéricos comuns tipo "1. ", "01 - "
       title = title.replace(/^\d+[\.\-\)]\s*/, '');
 
       if (timeStr && title) {
@@ -71,10 +66,8 @@ export function parseTimestampsFromText(text: string, totalDurationSeconds?: num
     }
   }
 
-  // Ordenar cronologicamente
   rawTracks.sort((a, b) => a.seconds - b.seconds);
 
-  // Calcular horários finais das faixas baseando-se no início da próxima faixa
   const tracks: Track[] = rawTracks.map((item, index) => {
     const nextItem = rawTracks[index + 1];
     let endSeconds: number | undefined;
