@@ -8,10 +8,13 @@ import UrlInput from './components/UrlInput.vue';
 import TrackList from './components/TrackList.vue';
 import ProgressBar from './components/ProgressBar.vue';
 import ToastContainer from './components/ToastContainer.vue';
+import DonationModal from './components/DonationModal.vue';
 
 const engine = useCutterEngine();
 const { parseTimestampsFromText } = useTimestamps();
 const toast = useNotifications();
+
+const showDonationModal = ref(false);
 
 const selectedMode = ref<DownloadMode>('album');
 const isAnalyzing = ref(false);
@@ -163,6 +166,7 @@ const startProcess = async () => {
   }
 
   isProcessing.value = true;
+  showDonationModal.value = true;
   progress.value = {
     status: 'downloading',
     percentage: 10,
@@ -363,6 +367,7 @@ const startProcess = async () => {
       </section>
     </main>
 
+    <DonationModal :show="showDonationModal" @close="showDonationModal = false" />
     <ToastContainer />
   </div>
 </template>

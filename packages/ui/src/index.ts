@@ -5,6 +5,7 @@ export { default as UrlInput } from './components/UrlInput.vue';
 export { default as TrackList } from './components/TrackList.vue';
 export { default as ProgressBar } from './components/ProgressBar.vue';
 export { default as ToastContainer } from './components/ToastContainer.vue';
+export { default as DonationModal } from './components/DonationModal.vue';
 
 export * from './services/engineAdapter';
 export * from './composables/useTimestamps';
