@@ -19,6 +19,7 @@ function createWindow(): void {
     autoHideMenuBar: true,
     backgroundColor: '#121518',
     title: 'Sonata',
+    icon: join(__dirname, '../../resources/icon.png'),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
