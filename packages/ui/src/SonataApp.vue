@@ -34,9 +34,9 @@ const selectedTracksCount = computed(() => {
 });
 
 const actionButtonText = computed(() => {
-  if (selectedMode.value === 'single') return `Baixar Música (${outputFormat.value.toUpperCase()})`;
-  if (selectedMode.value === 'playlist') return `Baixar Playlist (${selectedTracksCount.value} Músicas)`;
-  return 'Fatiar e Exportar Álbum';
+  if (selectedMode.value === 'single') return `Baixar música (${outputFormat.value.toUpperCase()})`;
+  if (selectedMode.value === 'playlist') return `Baixar playlist (${selectedTracksCount.value} músicas)`;
+  return `Fatiar e baixar álbum (${selectedTracksCount.value} faixas)`;
 });
 
 const handleSelectDirectory = async () => {
@@ -111,12 +111,12 @@ const handleSearch = async (url: string) => {
     applyTracksForMode(metadata, selectedMode.value);
 
     if (metadata.isPlaylist) {
-      toast.success(`${metadata.playlistEntries?.length || 0} faixas disponíveis encontradas na playlist.`, 'Playlist Carregada');
+      toast.success(`${metadata.playlistEntries?.length || 0} faixas encontradas na playlist.`, 'Playlist pronta');
     } else if (selectedMode.value === 'album' && tracks.value.length > 0) {
-      toast.success(`${tracks.value.length} faixas com marcação de tempo identificadas na descrição.`, 'Álbum Carregado');
+      toast.success(`${tracks.value.length} faixas identificadas na descrição.`, 'Álbum carregado');
     }
   } catch (err: any) {
-    toast.error(err.message || 'Não foi possível carregar as informações do link.', 'Erro ao Carregar Link');
+    toast.error(err.message || 'Não foi possível carregar as informações do link.', 'Erro ao carregar link');
   } finally {
     isAnalyzing.value = false;
   }
@@ -158,7 +158,7 @@ const startProcess = async () => {
     }));
 
   if (selectedTracks.length === 0) {
-    toast.warning('Selecione ao menos uma faixa para baixar/fatiar.', 'Nenhuma Faixa Selecionada');
+    toast.warning('Selecione pelo menos uma faixa para continuar.', 'Nenhuma faixa selecionada');
     return;
   }
 
@@ -169,8 +169,8 @@ const startProcess = async () => {
     message: selectedMode.value === 'single'
       ? 'Baixando música...'
       : selectedMode.value === 'playlist'
-      ? 'Iniciando download da playlist...'
-      : 'Preparando download do áudio base...'
+      ? 'Baixando músicas da playlist...'
+      : 'Baixando áudio do álbum...'
   };
 
   try {
@@ -191,21 +191,21 @@ const startProcess = async () => {
 
     if (result.skippedTracks && result.skippedTracks.length > 0) {
       toast.warning(
-        `${result.skippedTracks.length} faixa(s) indisponível(is) no YouTube foram ignoradas durante o download.`,
-        'Músicas Indisponíveis'
+        `${result.skippedTracks.length} faixas indisponíveis no YouTube foram ignoradas.`,
+        'Faixas ignoradas'
       );
       toast.success(
-        `${result.tracksProcessed} músicas foram baixadas e salvas com sucesso!`,
-        'Playlist Concluída'
+        `${result.tracksProcessed} músicas salvas com sucesso!`,
+        'Download concluído'
       );
     } else {
       toast.success(
         selectedMode.value === 'single'
-          ? 'Música baixada e salva com sucesso!'
+          ? 'Música salva com sucesso!'
           : selectedMode.value === 'playlist'
           ? `${result.tracksProcessed} músicas da playlist foram salvas!`
-          : 'Todas as faixas do álbum foram fatiadas com sucesso!',
-        'Concluído com Sucesso'
+          : 'Todas as faixas foram cortadas e salvas com sucesso!',
+        'Concluído'
       );
     }
   } catch (err: any) {
@@ -214,7 +214,7 @@ const startProcess = async () => {
       percentage: 0,
       message: err.message || 'Erro durante o processamento do áudio.'
     };
-    toast.error(err.message || 'Erro durante o processamento do áudio.', 'Falha no Processamento');
+    toast.error(err.message || 'Erro durante o processamento do áudio.', 'Falha no processamento');
   } finally {
     isProcessing.value = false;
   }
@@ -235,7 +235,7 @@ const startProcess = async () => {
         <h1 class="brand-title">Sonata</h1>
       </div>
       <p class="brand-subtitle">
-        Baixe músicas individuais, extraia faixas com precisão de timestamps ou baixe playlists completas.
+        Baixe faixas individuais, fatie álbuns por marcações de tempo ou baixe playlists completas.
       </p>
 
       <div class="mode-selector-container">
@@ -248,7 +248,7 @@ const startProcess = async () => {
             @click="handleModeChange('single')"
           >
             <span class="mode-icon">🎵</span>
-            <span class="mode-label">Música Individual</span>
+            <span class="mode-label">Música única</span>
           </button>
 
           <button
@@ -259,7 +259,7 @@ const startProcess = async () => {
             @click="handleModeChange('album')"
           >
             <span class="mode-icon">💽</span>
-            <span class="mode-label">Álbum / Fatiar</span>
+            <span class="mode-label">Álbum completo</span>
           </button>
 
           <button
@@ -293,7 +293,7 @@ const startProcess = async () => {
         <div class="video-meta">
           <div class="meta-mode-badge-row">
             <span class="meta-mode-badge" :class="selectedMode">
-              {{ selectedMode === 'single' ? 'Música Única' : selectedMode === 'playlist' ? 'Playlist' : 'Álbum Fatiado' }}
+              {{ selectedMode === 'single' ? 'Música' : selectedMode === 'playlist' ? 'Playlist' : 'Álbum' }}
             </span>
           </div>
           <h2 class="video-title">{{ videoData.title }}</h2>
@@ -334,8 +334,8 @@ const startProcess = async () => {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
               </svg>
-              <span class="directory-text" :title="destinationDirectory || 'Downloads/Sonata (Padrão)'">
-                {{ destinationDirectory || 'Downloads/Sonata (Padrão)' }}
+              <span class="directory-text" :title="destinationDirectory || 'Pasta padrão (Downloads/Sonata)'">
+                {{ destinationDirectory || 'Pasta padrão (Downloads/Sonata)' }}
               </span>
               <button type="button" class="change-dir-btn" :disabled="isProcessing">
                 Selecionar

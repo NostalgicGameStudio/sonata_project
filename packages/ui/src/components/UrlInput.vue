@@ -22,12 +22,12 @@ const handleSearch = () => {
   const trimmed = inputUrl.value.trim();
 
   if (!trimmed) {
-    errorMessage.value = 'Por favor, insira o link de um vídeo do YouTube.';
+    errorMessage.value = 'Informe o link de um vídeo ou playlist do YouTube.';
     return;
   }
 
   if (!isValidYoutubeUrl(trimmed)) {
-    errorMessage.value = 'Insira uma URL válida do YouTube (ex: https://youtube.com/watch?v=...).';
+    errorMessage.value = 'Informe um link válido do YouTube.';
     return;
   }
 
@@ -55,7 +55,7 @@ const handleKeydown = (e: KeyboardEvent) => {
         <input
           v-model="inputUrl"
           type="text"
-          placeholder="Cole o link do YouTube aqui (ex: https://youtu.be/...)"
+          placeholder="Cole o link do YouTube aqui..."
           :disabled="loading"
           @keydown="handleKeydown"
         />
@@ -67,7 +67,7 @@ const handleKeydown = (e: KeyboardEvent) => {
         :disabled="loading || !inputUrl.trim()"
         @click="handleSearch"
       >
-        <span v-if="!loading">Analisar Faixas</span>
+        <span v-if="!loading">Carregar link</span>
         <span v-else class="loading-state">
           <span class="spinner"></span>
           <span>Buscando...</span>

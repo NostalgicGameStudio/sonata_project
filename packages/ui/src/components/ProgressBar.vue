@@ -1,16 +1,34 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { CutProgress } from '@sonata/shared-types';
 
-defineProps<{
+const props = defineProps<{
   progress: CutProgress;
 }>();
+
+const statusLabel = computed(() => {
+  switch (props.progress.status) {
+    case 'downloading':
+      return 'BAIXANDO';
+    case 'slicing':
+      return 'CORTANDO';
+    case 'tagging':
+      return 'SALVANDO';
+    case 'completed':
+      return 'CONCLUÍDO';
+    case 'error':
+      return 'ERRO';
+    default:
+      return 'AGUARDANDO';
+  }
+});
 </script>
 
 <template>
   <div class="progress-card">
     <div class="progress-header">
       <span class="status-badge" :class="progress.status">
-        {{ progress.status.toUpperCase() }}
+        {{ statusLabel }}
       </span>
       <span class="percentage">{{ Math.round(progress.percentage) }}%</span>
     </div>
@@ -23,7 +41,7 @@ defineProps<{
     </div>
 
     <p class="progress-message">
-      {{ progress.message || 'Processando faixas com precisão...' }}
+      {{ progress.message || 'Processando áudio...' }}
     </p>
   </div>
 </template>

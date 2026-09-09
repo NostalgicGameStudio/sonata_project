@@ -135,18 +135,18 @@ async def cut_audio(request, payload: ProcessAudioRequest):
         "tracks_count": len(payload.tracks),
         "tracks_processed": processed_count,
         "download_url": f"/api/v1/download/{job_id}",
-        "message": f"{processed_count} faixa(s) processada(s) com sucesso!"
+        "message": f"{processed_count} faixa(s) gerada(s) com sucesso!"
     }
 
 
 @api.get("/download/{job_id}", summary="Download do arquivo de áudio ou arquivo compactado ZIP")
 def download_audio_job(request, job_id: str):
     """
-    Retorna o arquivo de áudio individual ou o arquivo ZIP com todas as faixas fatiadas/playlist.
+    Retorna o arquivo de áudio individual ou o arquivo ZIP com todas as faixas.
     """
     job = audio_processor.get_job_file(job_id)
     if not job:
-        raise Http404("Arquivo de download não encontrado ou já expirado.")
+        raise Http404("Arquivo não encontrado ou expirado.")
 
     file_path, filename = job
     return FileResponse(open(file_path, "rb"), as_attachment=True, filename=filename)

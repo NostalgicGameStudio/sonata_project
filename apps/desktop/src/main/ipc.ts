@@ -9,7 +9,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, cutterService: Lo
 
   ipcMain.handle('select-directory', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
-      title: 'Selecionar pasta de destino para as músicas fatiadas',
+      title: 'Selecionar pasta de destino para salvar as músicas',
       properties: ['openDirectory', 'createDirectory']
     });
 

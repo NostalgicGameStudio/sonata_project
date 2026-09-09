@@ -56,9 +56,9 @@ const updateField = (index: number, field: keyof Track, value: any) => {
 };
 
 const headerTitle = computed(() => {
-  if (props.mode === 'single') return 'Música a Baixar';
-  if (props.mode === 'playlist') return 'Faixas da Playlist';
-  return 'Faixas Fatiadas por Timestamp';
+  if (props.mode === 'single') return 'Música selecionada';
+  if (props.mode === 'playlist') return 'Músicas da playlist';
+  return 'Faixas do álbum';
 });
 
 const handleProcessCustomText = () => {
@@ -69,11 +69,11 @@ const handleProcessCustomText = () => {
     emit('update:tracks', parsed);
     showPasteBox.value = false;
     customText.value = '';
-    toast.success(`${parsed.length} faixas identificadas e organizadas!`, 'Timestamps Processados');
+    toast.success(`${parsed.length} faixas identificadas com sucesso!`, 'Faixas Importadas');
   } else {
     toast.warning(
-      'Não encontramos timestamps no formato MM:SS ou HH:MM:SS no texto fornecido. Verifique o formato e tente novamente.',
-      'Nenhum Timestamp Detectado'
+      'Não foi possível encontrar marcações de tempo (ex: 01:20) no texto informado.',
+      'Nenhum horário detectado'
     );
   }
 };
@@ -110,7 +110,7 @@ const handleProcessCustomText = () => {
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span>{{ showPasteBox ? 'Fechar Editor' : 'Colar Timestamps' }}</span>
+          <span>{{ showPasteBox ? 'Fechar' : 'Colar marcações de tempo' }}</span>
         </button>
 
         <button
@@ -123,7 +123,7 @@ const handleProcessCustomText = () => {
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
-          <span>Adicionar Faixa</span>
+          <span>Adicionar faixa</span>
         </button>
       </div>
     </div>
@@ -132,12 +132,12 @@ const handleProcessCustomText = () => {
       <div class="paste-box-header">
         <div class="paste-box-title-group">
           <span class="paste-icon">📝</span>
-          <span class="paste-box-title">Colar Timestamps (Descrição ou Comentários)</span>
+          <span class="paste-box-title">Colar marcações de tempo</span>
         </div>
         <button type="button" class="close-paste-btn" title="Fechar" @click="showPasteBox = false">✕</button>
       </div>
       <p class="paste-box-subtext">
-        Cole o texto do comentário ou tracklist abaixo. O Sonata extrairá os horários e títulos automaticamente:
+        Cole o texto com horários e títulos abaixo:
       </p>
       <textarea
         v-model="customText"
@@ -157,7 +157,7 @@ const handleProcessCustomText = () => {
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
-          <span>Identificar Faixas</span>
+          <span>Importar faixas</span>
         </button>
       </div>
     </div>
@@ -167,7 +167,7 @@ const handleProcessCustomText = () => {
         <div class="empty-album-state">
           <p class="empty-title">Nenhuma marcação de tempo encontrada na descrição do vídeo.</p>
           <p class="empty-subtext">
-            Se alguém listou as músicas nos comentários, cole o texto abaixo para gerar as faixas:
+            Se houver uma lista de faixas nos comentários, cole o texto abaixo para organizar:
           </p>
           <textarea
             v-model="customText"
@@ -186,13 +186,13 @@ const handleProcessCustomText = () => {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
               </svg>
-              <span>Processar Timestamps</span>
+              <span>Importar faixas</span>
             </button>
           </div>
         </div>
       </template>
       <p v-else-if="mode === 'playlist'">Nenhuma música encontrada nesta playlist.</p>
-      <p v-else>Nenhuma informação da música carregada.</p>
+      <p v-else>Nenhuma informação carregada.</p>
     </div>
 
     <div v-else-if="mode === 'album'" class="table-scroll-container">
@@ -200,7 +200,7 @@ const handleProcessCustomText = () => {
         <div class="table-head album-grid">
           <div class="col-check"></div>
           <div class="col-index">#</div>
-          <div class="col-title">Título da Música</div>
+          <div class="col-title">Título</div>
           <div class="col-time">Início</div>
           <div class="col-time">Fim</div>
           <div class="col-actions"></div>
@@ -233,7 +233,7 @@ const handleProcessCustomText = () => {
               <input
                 type="text"
                 :value="track.title"
-                placeholder="Nome da faixa..."
+                placeholder="Título da faixa..."
                 :disabled="disabled"
                 class="inline-input title-input"
                 @input="e => updateField(idx, 'title', (e.target as HTMLInputElement).value)"
@@ -255,7 +255,7 @@ const handleProcessCustomText = () => {
               <input
                 type="text"
                 :value="track.endTime || ''"
-                placeholder="Final"
+                placeholder="Fim"
                 :disabled="disabled"
                 class="inline-input time-input"
                 @input="e => updateField(idx, 'endTime', (e.target as HTMLInputElement).value)"
@@ -286,8 +286,8 @@ const handleProcessCustomText = () => {
         <div class="table-head" :class="mode === 'single' ? 'single-grid' : 'playlist-grid'">
           <div v-if="mode === 'playlist'" class="col-check"></div>
           <div class="col-index">#</div>
-          <div class="col-title">Título da Música</div>
-          <div class="col-artist">Artista / Canal</div>
+          <div class="col-title">Título</div>
+          <div class="col-artist">Artista</div>
           <div class="col-duration">Duração</div>
         </div>
 

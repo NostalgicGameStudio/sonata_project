@@ -148,7 +148,7 @@ export class LocalCutterService {
     onProgress({
       status: 'downloading',
       percentage: 20,
-      message: 'Baixando áudio em alta definição...'
+      message: 'Baixando áudio...'
     });
 
     await this.downloadRawAudio(ytdlp, ffmpeg, payload.videoUrl, rawAudioPath);
@@ -156,7 +156,7 @@ export class LocalCutterService {
     onProgress({
       status: 'tagging',
       percentage: 70,
-      message: 'Convertendo e aplicando tags de áudio...'
+      message: 'Processando e salvando arquivo...'
     });
 
     const baseDir = payload.destinationDirectory && payload.destinationDirectory.trim()
@@ -223,7 +223,7 @@ export class LocalCutterService {
     onProgress({
       status: 'downloading',
       percentage: 15,
-      message: 'Baixando áudio completo do álbum...'
+      message: 'Baixando áudio do álbum...'
     });
 
     await this.downloadRawAudio(ytdlp, ffmpeg, payload.videoUrl, rawAudioPath);
@@ -249,7 +249,7 @@ export class LocalCutterService {
         percentage: percent,
         currentTrackIndex: i + 1,
         totalTracks: total,
-        message: `Fatiando faixa ${i + 1} de ${total}: "${track.title}"`
+        message: `Cortando faixa ${i + 1} de ${total}: "${track.title}"`
       });
 
       const args = ['-y'];
@@ -289,7 +289,7 @@ export class LocalCutterService {
     onProgress({
       status: 'completed',
       percentage: 100,
-      message: 'Todas as faixas do álbum foram fatiadas com sucesso!'
+      message: 'Todas as faixas foram cortadas e salvas com sucesso!'
     });
 
     return {
@@ -376,7 +376,7 @@ export class LocalCutterService {
 
     const successfulCount = total - skippedTracks.length;
     const finalMessage = skippedTracks.length > 0
-      ? `Playlist finalizada: ${successfulCount} baixadas (${skippedTracks.length} indisponível(is) ignorada(s)).`
+      ? `Download finalizado: ${successfulCount} músicas salvas (${skippedTracks.length} indisponíveis ignoradas).`
       : 'Todas as músicas da playlist foram baixadas com sucesso!';
 
     onProgress({

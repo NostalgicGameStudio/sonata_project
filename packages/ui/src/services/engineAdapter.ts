@@ -146,7 +146,7 @@ export class WebApiEngine implements ICutterEngine {
     payload: ProcessAudioPayload,
     onProgress: (progress: CutProgress) => void
   ): Promise<ProcessAudioResult> {
-    onProgress({ status: 'downloading', percentage: 15, message: 'Iniciando requisição ao servidor web...' });
+    onProgress({ status: 'downloading', percentage: 15, message: 'Processando áudio...' });
 
     const apiPayload = {
       mode: payload.mode || 'album',
@@ -177,12 +177,12 @@ export class WebApiEngine implements ICutterEngine {
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
-      const msg = typeof err.detail === 'string' ? err.detail : err.message || 'Falha ao processar o áudio na API.';
+      const msg = typeof err.detail === 'string' ? err.detail : err.message || 'Falha ao processar o áudio.';
       throw new Error(msg);
     }
 
     const data = await response.json();
-    onProgress({ status: 'completed', percentage: 100, message: 'Processamento concluído com sucesso!' });
+    onProgress({ status: 'completed', percentage: 100, message: 'Download concluído!' });
 
     if (data.download_url && typeof window !== 'undefined' && document) {
       const downloadLink = document.createElement('a');
