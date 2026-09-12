@@ -184,7 +184,7 @@ const startProcess = async () => {
   }
 
   isProcessing.value = true;
-  showDonationModal.value = true;
+  // showDonationModal.value = true; // Ocultado ao iniciar o download conforme solicitado
   progress.value = {
     status: 'downloading',
     percentage: 10,
