@@ -1,0 +1,16 @@
+appId: com.sonata.app
+productName: Sonata
+electronVersion: 33.2.1
+directories:
+  output: dist
+  buildResources: resources
+files:
+  - out/**/*
+  - node_modules/ffmpeg-static/**/*
+asarUnpack:
+  - node_modules/ffmpeg-static/**/*
+win:
+  target:
+    - target: portable
+      arch:
+        - x64

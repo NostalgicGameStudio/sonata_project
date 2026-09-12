@@ -12,9 +12,10 @@
   "scripts": {
     "dev:desktop": "npm run dev --workspace=apps/desktop",
     "dev:web": "npm run dev --workspace=apps/web",
-    "dev:api": "powershell -Command \"& apps/api/venv/Scripts/Activate.ps1; python apps/api/manage.py runserver\"",
+    "dev:api": "apps\\api\\venv\\Scripts\\python apps/api/manage.py runserver",
+    "build:desktop": "npm run build:win --workspace=apps/desktop",
     "test": "echo \"Suíte de testes\"",
-    "test:api": "powershell -Command \"& apps/api/venv/Scripts/Activate.ps1; python apps/api/manage.py test core\"",
+    "test:api": "apps\\api\\venv\\Scripts\\python apps/api/manage.py test core",
     "build": "npm run build --workspaces --if-present",
     "prepare": "husky"
   },
