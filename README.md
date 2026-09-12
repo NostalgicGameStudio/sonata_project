@@ -45,8 +45,8 @@ O Sonata foi pensado para resolver tarefas comuns do dia a dia de quem consome �
 
 Se você deseja apenas utilizar o **Sonata** no seu dia a dia sem precisar instalar Node.js, Python ou compilar código-fonte:
 
-> 🚀 **[Página de Download Oficial (Releases)](https://github.com/NostalgicGameStudio/sonata_project/releases/latest)**  
-> *(Na página que abrir, procure pela seção **Assets** no final e clique no arquivo **`Sonata 0.1.0.exe`**. Ignore os arquivos "Source code", pois eles são apenas o código-fonte).*
+> 🚀 **[Baixar Sonata para Windows (.exe)](https://github.com/NostalgicGameStudio/sonata_project/releases/download/v0.1.0/Sonata%200.1.0.exe)**  
+> *(Executável portátil para Windows 64-bit — basta fazer o download e abrir direto no seu computador, sem necessidade de instalação)*.
 
 ---
 
