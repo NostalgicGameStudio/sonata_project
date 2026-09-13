@@ -11,103 +11,21 @@ import type {
   PlaylistEntry
 } from '@sonata/shared-types';
 import { BinaryManager } from './binaryManager';
+import { SpotifyMetadataService } from './spotifyService';
 
 function sanitizeName(name: string): string {
   return name.replace(/[\\/*?:"<>|]/g, '').trim();
 }
 
 export class LocalCutterService {
-  constructor(private readonly binaryManager: BinaryManager) {}
+  private readonly spotifyService: SpotifyMetadataService;
 
-  private getPythonPath(): string {
-    const isWindows = process.platform === 'win32';
-    const venvPython = path.resolve(process.cwd(), 'apps', 'api', 'venv', isWindows ? 'Scripts/python.exe' : 'bin/python');
-    if (fs.existsSync(venvPython)) return venvPython;
-
-    let curr = __dirname;
-    for (let i = 0; i < 6; i++) {
-      const p = path.join(curr, 'apps', 'api', 'venv', isWindows ? 'Scripts/python.exe' : 'bin/python');
-      if (fs.existsSync(p)) return p;
-      const parent = path.dirname(curr);
-      if (parent === curr) break;
-      curr = parent;
-    }
-    return isWindows ? 'python.exe' : 'python3';
-  }
-
-  private getSpotifyCliPath(): string {
-    const cliPath = path.resolve(process.cwd(), 'apps', 'api', 'core', 'spotify_cli.py');
-    if (fs.existsSync(cliPath)) return cliPath;
-
-    let curr = __dirname;
-    for (let i = 0; i < 6; i++) {
-      const p = path.join(curr, 'apps', 'api', 'core', 'spotify_cli.py');
-      if (fs.existsSync(p)) return p;
-      const parent = path.dirname(curr);
-      if (parent === curr) break;
-      curr = parent;
-    }
-    return cliPath;
+  constructor(private readonly binaryManager: BinaryManager) {
+    this.spotifyService = new SpotifyMetadataService();
   }
 
   private async fetchSpotifyMetadata(url: string): Promise<VideoMetadata> {
-    const python = this.getPythonPath();
-    const script = this.getSpotifyCliPath();
-
-    return new Promise((resolve, reject) => {
-      const proc = spawn(python, [script, url], {
-        env: {
-          ...process.env,
-          PYTHONIOENCODING: 'utf-8',
-          PYTHONUTF8: '1'
-        }
-      });
-      let stdout = '';
-      let stderr = '';
-
-      proc.stdout.setEncoding('utf-8');
-      proc.stderr.setEncoding('utf-8');
-      proc.stdout.on('data', (d) => (stdout += d.toString()));
-      proc.stderr.on('data', (d) => (stderr += d.toString()));
-
-      proc.on('error', (err) => {
-        reject(new Error(`Falha ao executar extrator do Spotify: ${err.message}`));
-      });
-
-      proc.on('close', (code) => {
-        if (stdout.trim()) {
-          try {
-            const data = JSON.parse(stdout);
-            if (data.error) {
-              reject(new Error(data.error));
-              return;
-            }
-            resolve({
-              id: data.id,
-              title: data.title,
-              author: data.author,
-              durationSeconds: data.durationSeconds || data.duration_seconds || 0,
-              thumbnailUrl: data.thumbnailUrl || data.thumbnail_url || '',
-              rawDescription: '',
-              isPlaylist: data.isPlaylist || data.is_playlist || false,
-              playlistEntries: (data.playlistEntries || data.playlist_entries || []).map((p: any) => ({
-                id: p.id,
-                title: p.title,
-                author: p.author,
-                durationSeconds: p.durationSeconds || p.duration_seconds || 0,
-                url: p.url,
-                thumbnailUrl: p.thumbnailUrl || p.thumbnail_url || ''
-              }))
-            });
-            return;
-          } catch (e) {
-            reject(new Error(`Erro ao interpretar dados do Spotify: ${e}`));
-            return;
-          }
-        }
-        reject(new Error(`Falha ao obter dados do Spotify (código ${code}): ${stderr}`));
-      });
-    });
+    return this.spotifyService.extractMetadata(url);
   }
 
   /**
