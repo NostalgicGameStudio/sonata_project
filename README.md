@@ -43,22 +43,17 @@ O Sonata foi pensado para resolver tarefas comuns do dia a dia de quem consome �
 <a id="download"></a>
 ## 💾 Download do Executável (Windows)
 
-Se você deseja apenas utilizar o **Sonata** no seu dia a dia sem precisar instalar Node.js, Python ou compilar código-fonte:
+Para usar o **Sonata** no seu computador sem precisar instalar nada:
 
 > 🚀 **[Baixar Sonata para Windows (.exe)](https://github.com/NostalgicGameStudio/sonata_project/releases/download/v0.1.0/Sonata.0.1.0.exe)**  
-> *(Executável portátil para Windows 64-bit — basta fazer o download e abrir direto no seu computador, sem necessidade de instalação)*.
+> *(Versão portátil para Windows 64-bit: é só baixar e abrir direto)*.
 
 ---
 
-### 📌 Informações importantes ao utilizar o executável:
+### 💡 Dicas de uso:
 
-1. **Aviso do Windows Defender (SmartScreen)**:
-   - Como o executável é gerado de forma independente e não possui uma assinatura digital comercial paga (padrão em projetos de código aberto gratuitos), o Windows pode exibir o alerta azul: *"O Windows protegeu o seu computador"*.
-   - **Como abrir:** Basta clicar em **"Mais informações"** e, em seguida, em **"Executar assim mesmo"**. O aplicativo é seguro e opera 100% de forma local.
-
-2. **Links do YouTube vs Spotify no aplicativo portátil**:
-   - **YouTube (Autônomo e Direto)**: O motor de busca, download e fatiamento de músicas, álbuns e playlists do YouTube é **100% integrado e autônomo** no `.exe`. Na primeira inicialização, o aplicativo configura automaticamente os recursos necessários em segundo plano.
-   - **Spotify**: A extração de metadados a partir de links do Spotify utiliza um script complementar em Python presente no backend (`apps/api`). Para quem estiver utilizando apenas o executável sem configurar o ambiente de desenvolvimento, o uso com links do **YouTube** é a forma nativa e garantida para baixar qualquer faixa, álbum completo ou compilação.
+- **Alerta do Windows (SmartScreen):** Por ser um projeto de código aberto e independente, o Windows pode exibir uma tela azul dizendo *"O Windows protegeu o seu computador"*. Se isso acontecer, basta clicar em **"Mais informações"** e depois em **"Executar assim mesmo"**.
+- **Primeira execução:** Ao abrir pela primeira vez, o app configura rapidamente as ferramentas de áudio em segundo plano. Em seguida, é só colar o link do YouTube ou Spotify e começar a baixar.
 
 ---
 
@@ -107,7 +102,7 @@ sonata_project/
 
 ```powershell
 # 1. Clone o repositório
-git clone https://github.com/seu-usuario/sonata_project.git
+git clone https://github.com/NostalgicGameStudio/sonata_project.git
 cd sonata_project
 
 # 2. Instale as dependências dos workspaces Node (Desktop, Web, UI, Shared-Types)
